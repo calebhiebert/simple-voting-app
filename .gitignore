@@ -12,3 +12,5 @@
 *.out
 
 voter
+
+*node_modules
