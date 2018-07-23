@@ -8,8 +8,13 @@ import (
 
 // PostVote creates a new vote
 func PostVote(c *gin.Context, db *gorm.DB) {
+	subject := models.Subject{}
+
+	db.First(&subject, "id = ?", c.Param("subjectid"))
+
 	vote := models.Vote{
-		Voter: "Tests",
+		Voter:     "Tests",
+		SubjectID: subject.ID,
 	}
 
 	db.Create(&vote)

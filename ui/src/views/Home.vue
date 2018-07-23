@@ -7,17 +7,13 @@
     </div>
     <div class="columns">
       <div class="column col-10 col-mx-auto">
-        <main-page-vote-view class="mt-2" :name="'Name Here'" :votePercent="0.75"></main-page-vote-view>
-        <main-page-vote-view class="mt-2" :name="'John Doe'" :votePercent="0.75"></main-page-vote-view>
-        <main-page-vote-view class="mt-2" :name="'Jane Smith'" :votePercent="0.5"></main-page-vote-view>
-        <main-page-vote-view class="mt-2" :name="'Potato Salad'" :votePercent="0.5"></main-page-vote-view>
-        <main-page-vote-view class="mt-2" :name="'Rick'" :votePercent="0.5"></main-page-vote-view>
+        <main-page-vote-view @selected="detailSubject(subject)" @click="detailSubject(subject)" class="mt-2" v-for="subject of subjects" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="0.75"></main-page-vote-view>
       </div>
     </div>
     <div class="divider"></div>
     <div class="columns">
       <div class="column col-mx-auto text-center">
-        Don't see the person/costume you're looking for? <a href="#">Add them</a>
+        Don't see the person/costume you're looking for? <router-link :to="{name: 'subject-create'}">Add them</router-link>
       </div>
     </div>
   </div>
@@ -30,6 +26,8 @@
 </style>
 
 <script>
+import api from '../api';
+
 // @ is an alias to /src
 import MainPageVoteView from '@/components/MainPageVoteView.vue';
 
@@ -37,6 +35,26 @@ export default {
   name: 'home',
   components: {
     MainPageVoteView,
+  },
+
+  created () {
+    api.getSubjects().then((subjects) => {
+      console.log(subjects);
+      this.$store.commit('setSubjects', subjects);
+    });
+  },
+
+  computed: {
+    subjects () {
+      return this.$store.state.subjects;
+    },
+  },
+
+  methods: {
+    detailSubject (subject) {
+      console.log(subject);
+      this.$router.push({ name: 'subject-view', params: { id: subject.id } });
+    },
   },
 };
 </script>

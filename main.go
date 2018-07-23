@@ -16,14 +16,18 @@ func main() {
 
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
+		AllowMethods:    []string{"PATCH"},
+		AllowHeaders:    []string{"Content-Type"},
 	}))
 
-	r.POST("/vote", wrapHandler(routes.PostVote))
+	r.POST("/vote/:subjectid", wrapHandler(routes.PostVote))
 
 	r.POST("/subjects", wrapHandler(routes.PostSubject))
 	r.GET("/subjects", wrapHandler(routes.GetSubjects))
+	r.GET("/subjects/:id", wrapHandler(routes.GetSubject))
+	r.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
 
-	r.Run()
+	r.Run(":3000")
 }
 
 func wrapHandler(handler func(c *gin.Context, db *gorm.DB)) func(c *gin.Context) {
