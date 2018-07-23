@@ -7,8 +7,9 @@ module.exports = {
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'comma-dangle': ['error', 'always'],
+    'comma-dangle': ['error', 'always-multiline'],
     semi: ['error', 'always'],
+    'object-curly-spacing': ['warn', 'always'],
   },
   parserOptions: {
     parser: 'babel-eslint',
