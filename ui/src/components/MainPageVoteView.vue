@@ -1,28 +1,42 @@
 <template>
-
-      <div class="columns">
-      <div class="column">
-          <div class="tile">
-    <div class="tile-icon">
-      <figure class="avatar avatar-x1">
-        <img :src="avatarUrl">
-      </figure>
-    </div>
-    <div class="tile-content">
-      <p class="tile-title">{{ name }}</p>
-      <div class="bar bar-sm">
-        <div class="bar-item" role="progressbar" :style="{width: barWidth}" :aria-valuenow="votePercent * 100" aria-valuemin="0" aria-valuemax="100"></div>
+  <div class="columns hov s-rounded">
+    <div class="column">
+      <div class="tile">
+      <div class="tile-icon">
+        <figure class="avatar avatar-x1">
+          <img :src="avatarUrl">
+        </figure>
       </div>
+      <div class="tile-content">
+        <p class="tile-title">{{ name }}</p>
+        <div class="bar bar-sm">
+          <div class="bar-item" role="progressbar" :style="{width: barWidth}" :aria-valuenow="votePercent * 100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </div>
+          <button class="btn btn-sm">
+      <i class="icon icon-plus"></i>
+    </button>
     </div>
   </div>
-      </div>
-      <div class="column col-xs-12">
-        <button class="btn btn-action btn-sm btn-primary circle">
-          <i class="icon icon-menu"></i>
-        </button>
-      </div>
-    </div>
+  <!-- <div class="column col-1">
+    <button class="btn btn-sm">
+      <i class="icon icon-plus"></i>
+    </button>
+  </div> -->
+</div>
 </template>
+
+<style scoped>
+.hov {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.hov:hover {
+  background-color: rgba(0, 0, 0, 0.116);
+}
+</style>
+
 <script>
 import md5 from 'md5';
 
