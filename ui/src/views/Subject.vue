@@ -1,7 +1,7 @@
 <template>
 <div class="container">
   <div class="columns">
-    <div class="column col-10 col-mx-auto">
+    <div class="column col-10 col-sm-12 col-mx-auto">
       <subject-view :subject="subject" v-if="subject"></subject-view>
     </div>
   </div>
@@ -23,17 +23,17 @@ export default {
     SubjectView,
   },
 
-  data () {
-    return {
-      subject: null,
-    };
+  created() {
+    this.$store.commit('setSubject', null);
+    api.getSubject(this.$route.params.id).then((subject) => {
+      this.$store.commit('setSubject', subject);
+    });
   },
 
-  created () {
-    api.getSubject(this.$route.params.id).then((subject) => {
-      console.log(subject);
-      this.subject = subject;
-    });
+  computed: {
+    subject() {
+      return this.$store.state.subject;
+    },
   },
 };
 </script>

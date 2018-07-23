@@ -13,9 +13,6 @@
             <div class="bar-item" role="progressbar" :style="{width: barWidth}" :aria-valuenow="votePercent * 100" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
         </div>
-        <button class="btn btn-sm">
-          <i class="icon icon-plus"></i>
-        </button>
       </div>
     </div>
   </div>
@@ -52,11 +49,17 @@ export default {
     },
   },
 
+  methods: {
+    vote() {
+      console.log('Vote');
+    },
+  },
+
   computed: {
-    barWidth () {
+    barWidth() {
       return this.votePercent * 100 + '%';
     },
-    avatarUrl () {
+    avatarUrl() {
       return api.avatarURL(this.name);
     },
   },

@@ -17,17 +17,22 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"PATCH"},
-		AllowHeaders:    []string{"Content-Type"},
+		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	r.POST("/vote/:subjectid", wrapHandler(routes.PostVote))
+	public := r.Group("")
+	public.GET("/subjects", wrapHandler(routes.GetSubjects))
+	public.GET("/subjects/:id", wrapHandler(routes.GetSubject))
 
-	r.POST("/subjects", wrapHandler(routes.PostSubject))
-	r.GET("/subjects", wrapHandler(routes.GetSubjects))
-	r.GET("/subjects/:id", wrapHandler(routes.GetSubject))
-	r.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
+	private := r.Group("")
 
-	r.Run(":3000")
+	private.Use(Auth())
+	private.Use(RequireAuth())
+	private.POST("/vote/:subjectid", wrapHandler(routes.PostVote))
+	private.POST("/subjects", wrapHandler(routes.PostSubject))
+	private.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
+
+	r.Run("0.0.0.0:3000")
 }
 
 func wrapHandler(handler func(c *gin.Context, db *gorm.DB)) func(c *gin.Context) {

@@ -7,7 +7,7 @@
         </figure>
       </div>
       <div class="tile-content">
-        <p class="tile-title">{{ edit.editor }}<sup v-if="index === history.length - 1"><i> (Original)</i></sup></p>
+        <p class="tile-title">{{ edit.editor }}<i v-if="index === history.length - 1"> (Original)</i></p>
         <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
       </div>
     </div>
@@ -38,13 +38,13 @@ export default {
 
   methods: {
     distanceInWordsToNow,
-    getAvatarUrl (name) {
+    getAvatarUrl(name) {
       return api.avatarURL(name);
     },
   },
 
   computed: {
-    sortedHistory () {
+    sortedHistory() {
       return this.history.slice(0).sort((a, b) => {
         if (a.createdAt < b.createdAt) {
           return 1;

@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div class="clearfix">
+    <button class="btn float-right" @click="vote" :class="{loading: voting}">Vote</button>
     <div class="columns">
-      <div class="column col-1 col-lg-2 col-sm-3 col-xs-5">
+      <div class="column col-1 col-lg-2 col-sm-3 col-xs-3">
         <figure class="avatar avatar-xl">
           <img :src="avatarUrl" alt="avatar">
         </figure>
@@ -22,13 +23,17 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column col-6">
+      <div class="column">
+        <h4>Votes ({{ subject.votes.length }})</h4>
+        <votes :votes="subject.votes"></votes>
+      </div>
+      <div class="column">
         <h4>Edit History</h4>
         <edit-history :history="subject.history" v-if="subject"></edit-history>
       </div>
     </div>
     <div class="divider"></div>
-    <p>Something not right here? Please <a @click="edit">fix it</a></p>
+    <p class="text-center">Something not right here? Please <a @click="edit">fix it</a></p>
   </div>
 </template>
 
@@ -50,10 +55,12 @@ h1 {
 import api from '@/api';
 
 import EditHistory from '@/components/EditHistory.vue';
+import Votes from '@/components/Votes.vue';
 
 export default {
   components: {
     EditHistory,
+    Votes,
   },
 
   props: {
@@ -64,31 +71,55 @@ export default {
     },
   },
 
-  data () {
+  data() {
     return {
       editing: false,
       saving: false,
+      voting: false,
     };
   },
 
   computed: {
-    avatarUrl () {
+    avatarUrl() {
       return api.avatarURL(this.subject.personName);
     },
   },
 
   methods: {
-    edit () {
+    edit() {
       this.editing = true;
     },
 
-    update () {
+    update() {
       this.saving = true;
-      api.updateSubject(this.subject.id, this.subject.personName, this.subject.costumeDescription).then((subject) => {
-        this.editing = false;
-        this.saving = false;
-        console.log(subject);
-      });
+      api
+        .updateSubject(this.subject.id, this.subject.personName, this.subject.costumeDescription)
+        .then((subject) => {
+          return api.getSubject(subject.id).then((subject) => {
+            this.$store.commit('setSubject', subject);
+            return subject;
+          });
+        })
+        .then((subject) => {
+          this.editing = false;
+          this.saving = false;
+        });
+    },
+
+    vote() {
+      this.voting = true;
+      api
+        .vote(this.subject.id)
+        .then((vote) => {
+          return api.getSubject(this.subject.id).then((subject) => {
+            this.$store.commit('setSubject', subject);
+            return vote;
+          });
+        })
+        .then((vote) => {
+          console.log(vote);
+          this.voting = false;
+        });
     },
   },
 };

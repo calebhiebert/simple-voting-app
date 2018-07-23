@@ -3,14 +3,14 @@
     <div class="columns">
       <div class="column col-10 col-mx-auto">
         <h3>Add Person</h3>
-        <form @submit="submit">
+        <form @submit.prevent="submit">
           <div class="form-group">
             <label class="form-label">Person Name</label>
-            <input class="form-input" type="text" placeholder="ex. John Smith">
+            <input class="form-input" type="text" placeholder="ex. John Smith" v-model="personName">
           </div>
           <div class="form-group">
             <label class="form-label">Costume</label>
-            <input class="form-input" type="text" placeholder="ex. Super Apu">
+            <input class="form-input" type="text" placeholder="ex. Super Apu" v-model="costumeDescription">
           </div>
           <button class="btn btn-error" @click="$router.push({name: 'home'})">Cancel</button>
           <button class="btn" type="submit">Add</button>
@@ -33,7 +33,7 @@ button {
 <script>
 import api from '@/api';
 export default {
-  data () {
+  data() {
     return {
       personName: '',
       costumeDescription: '',
@@ -41,12 +41,18 @@ export default {
   },
 
   methods: {
-    submit (event) {
+    submit(event) {
       event.preventDefault();
       api
         .createSubject(this.personName, this.costumeDescription)
         .then((result) => {
-          console.log(result);
+          return api.getSubjects().then((subjects) => {
+            this.$store.commit('setSubjects', subjects);
+            return result;
+          });
+        })
+        .then((result) => {
+          this.$router.replace({ name: 'home' });
         })
         .catch((err) => {
           console.log(err.response);

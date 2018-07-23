@@ -3,10 +3,11 @@
     <div class="columns mt-2">
       <div class="column col-6 col-mx-auto text-center">
         <h1>Guests</h1>
+        <p>Please select the person you would like to vote for</p>
       </div>
     </div>
     <div class="columns">
-      <div class="column col-10 col-mx-auto">
+      <div class="column col-10 col-sm-12 col-xs-12 col-mx-auto">
         <main-page-vote-view @selected="detailSubject(subject)" @click="detailSubject(subject)" class="mt-2" v-for="subject of subjects" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="0.75"></main-page-vote-view>
       </div>
     </div>
@@ -37,22 +38,20 @@ export default {
     MainPageVoteView,
   },
 
-  created () {
+  created() {
     api.getSubjects().then((subjects) => {
-      console.log(subjects);
       this.$store.commit('setSubjects', subjects);
     });
   },
 
   computed: {
-    subjects () {
+    subjects() {
       return this.$store.state.subjects;
     },
   },
 
   methods: {
-    detailSubject (subject) {
-      console.log(subject);
+    detailSubject(subject) {
       this.$router.push({ name: 'subject-view', params: { id: subject.id } });
     },
   },
