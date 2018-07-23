@@ -50,16 +50,16 @@ export default {
   },
 
   methods: {
-    vote() {
+    vote () {
       console.log('Vote');
     },
   },
 
   computed: {
-    barWidth() {
+    barWidth () {
       return this.votePercent * 100 + '%';
     },
-    avatarUrl() {
+    avatarUrl () {
       return api.avatarURL(this.name);
     },
   },

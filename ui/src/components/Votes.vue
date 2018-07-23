@@ -40,7 +40,7 @@ export default {
 
   methods: {
     distanceInWordsToNow,
-    getAvatarUrl(name) {
+    getAvatarUrl (name) {
       return api.avatarURL(name);
     },
   },

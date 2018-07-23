@@ -71,7 +71,7 @@ export default {
     },
   },
 
-  data() {
+  data () {
     return {
       editing: false,
       saving: false,
@@ -80,17 +80,17 @@ export default {
   },
 
   computed: {
-    avatarUrl() {
+    avatarUrl () {
       return api.avatarURL(this.subject.personName);
     },
   },
 
   methods: {
-    edit() {
+    edit () {
       this.editing = true;
     },
 
-    update() {
+    update () {
       this.saving = true;
       api
         .updateSubject(this.subject.id, this.subject.personName, this.subject.costumeDescription)
@@ -106,7 +106,7 @@ export default {
         });
     },
 
-    vote() {
+    vote () {
       this.voting = true;
       api
         .vote(this.subject.id)

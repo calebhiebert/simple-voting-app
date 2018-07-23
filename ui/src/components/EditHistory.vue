@@ -38,13 +38,13 @@ export default {
 
   methods: {
     distanceInWordsToNow,
-    getAvatarUrl(name) {
+    getAvatarUrl (name) {
       return api.avatarURL(name);
     },
   },
 
   computed: {
-    sortedHistory() {
+    sortedHistory () {
       return this.history.slice(0).sort((a, b) => {
         if (a.createdAt < b.createdAt) {
           return 1;

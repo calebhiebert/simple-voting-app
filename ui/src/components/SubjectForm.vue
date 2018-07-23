@@ -33,7 +33,7 @@ button {
 <script>
 import api from '@/api';
 export default {
-  data() {
+  data () {
     return {
       personName: '',
       costumeDescription: '',
@@ -41,7 +41,7 @@ export default {
   },
 
   methods: {
-    submit(event) {
+    submit (event) {
       event.preventDefault();
       api
         .createSubject(this.personName, this.costumeDescription)

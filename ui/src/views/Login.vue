@@ -1,5 +1,5 @@
 <template>
-  
+<div></div>
 </template>
 <style>
 .auth0-lock-badge-bottom {
@@ -24,7 +24,7 @@
 import axios from 'axios';
 
 export default {
-  created() {
+  created () {
     const lock = new Auth0Lock('l15qBjZMwq4NVeKCwFruwJJpaWI4Dphy', 'halloween-voting.auth0.com', {
       closeable: false,
       languageDictionary: {
@@ -48,4 +48,3 @@ export default {
   },
 };
 </script>
-

@@ -38,20 +38,20 @@ export default {
     MainPageVoteView,
   },
 
-  created() {
+  created () {
     api.getSubjects().then((subjects) => {
       this.$store.commit('setSubjects', subjects);
     });
   },
 
   computed: {
-    subjects() {
+    subjects () {
       return this.$store.state.subjects;
     },
   },
 
   methods: {
-    detailSubject(subject) {
+    detailSubject (subject) {
       this.$router.push({ name: 'subject-view', params: { id: subject.id } });
     },
   },

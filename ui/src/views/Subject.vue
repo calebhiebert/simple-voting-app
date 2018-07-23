@@ -23,7 +23,7 @@ export default {
     SubjectView,
   },
 
-  created() {
+  created () {
     this.$store.commit('setSubject', null);
     api.getSubject(this.$route.params.id).then((subject) => {
       this.$store.commit('setSubject', subject);
@@ -31,7 +31,7 @@ export default {
   },
 
   computed: {
-    subject() {
+    subject () {
       return this.$store.state.subject;
     },
   },
