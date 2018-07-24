@@ -2,8 +2,18 @@ version: '3'
 services:
   postgres:
     image: postgres:alpine
-    ports:
-      - "5432:5432"
     environment: 
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
+  app:
+    image: ${APP_IMAGE}
+    environment: 
+      PORT: 8080
+    labels:
+      - "traefik.backend=be"
+      - "traefik.docker.network=proxy"
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=PathPrefixStrip:/api/"
+      - "traefik.default.protocol=http"
+      - "traefik.frontend.priority=20"

@@ -4,6 +4,7 @@ import (
 	"./routes"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -20,12 +21,19 @@ func main() {
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	public := r.Group("")
+	r.Use(static.Serve("/", static.LocalFile("./dist", true)))
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./dist/index.html")
+	})
+
+	baseApi := r.Group("/api")
+
+	public := baseApi.Group("")
 	public.GET("/subjects", wrapHandler(routes.GetSubjects))
 	public.GET("/subjects/:id", wrapHandler(routes.GetSubject))
 	public.GET("/user/:id", wrapHandler(routes.GetUser))
 
-	private := r.Group("")
+	private := baseApi.Group("")
 
 	private.Use(Auth())
 	private.Use(RequireAuth())
@@ -34,7 +42,7 @@ func main() {
 	private.POST("/users/:id/ban", wrapHandler(routes.SetUserBanStatus(true)))
 	private.POST("/users/:id/unban", wrapHandler(routes.SetUserBanStatus(false)))
 
-	banApplied := r.Group("")
+	banApplied := baseApi.Group("")
 	banApplied.Use(Auth())
 	banApplied.Use(RequireAuth())
 	banApplied.Use(CheckBanned())
@@ -43,7 +51,7 @@ func main() {
 	banApplied.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
 	banApplied.DELETE("/subjects/:id", wrapHandler(routes.DeleteSubject))
 
-	r.Run("0.0.0.0:3000")
+	r.Run()
 }
 
 func wrapHandler(handler func(c *gin.Context, db *gorm.DB)) func(c *gin.Context) {

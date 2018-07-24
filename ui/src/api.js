@@ -5,7 +5,10 @@ import router from './router';
 const userCache = {};
 
 const http = axios.create({
-  baseURL: `http://${location.hostname}:3000`,
+  baseURL:
+    process.env.NODE_ENV === 'production'
+      ? `${location.protocol}//${location.host}/api`
+      : `http://${location.hostname}`,
   timeout: 5000,
 });
 
