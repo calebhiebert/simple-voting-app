@@ -12,7 +12,7 @@
             <label class="form-label">Costume</label>
             <input class="form-input" type="text" placeholder="ex. Super Apu" v-model="costumeDescription">
           </div>
-          <button class="btn btn-error" @click="$router.push({name: 'home'})">Cancel</button>
+          <button class="btn btn-error" type="button" @click="$router.push({name: 'home'})">Cancel</button>
           <button class="btn" type="submit" :class="{'loading': saving}">Add</button>
         </form>
       </div>

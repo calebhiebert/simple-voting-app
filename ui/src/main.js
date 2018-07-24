@@ -4,6 +4,7 @@ import router from './router';
 import store from './store';
 import VueMq from 'vue-mq';
 import api from './api';
+import axios from 'axios';
 
 Vue.config.productionTip = false;
 
@@ -22,6 +23,10 @@ new Vue({
   store,
   render: (h) => h(App),
 }).$mount('#app');
+
+if (localStorage.getItem('access-token') !== null) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('access-token')}`;
+}
 
 api.getMe().then((me) => {
   store.commit('setMe', me);
