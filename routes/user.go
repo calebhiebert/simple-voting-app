@@ -22,3 +22,10 @@ func GetUser(c *gin.Context, db *gorm.DB) {
 
 	c.JSON(200, user)
 }
+
+// GetMe returns the logged in user's information
+func GetMe(c *gin.Context, db *gorm.DB) {
+	user, _ := c.Get("user-info")
+
+	c.JSON(200, user)
+}

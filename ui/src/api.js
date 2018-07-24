@@ -69,6 +69,13 @@ const updateSubject = (id, personName, costumeDescription) => {
     .catch(handleAxiosError);
 };
 
+const getMe = () => {
+  return http
+    .get('/me')
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
+};
+
 const vote = (subjectId) => {
   return http
     .post(`/vote/${subjectId}`)
@@ -86,6 +93,7 @@ export default {
   updateSubject,
   createSubject,
   getUser,
+  getMe,
   vote,
   avatarURL,
 };

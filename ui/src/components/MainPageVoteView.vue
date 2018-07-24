@@ -1,5 +1,5 @@
 <template>
-  <div class="columns hov s-rounded" @click="$emit('selected')">
+  <div class="columns hov s-rounded" :class="{'voted-for': votedFor}" @click="$emit('selected')">
     <div class="column">
       <div class="tile">
         <div class="tile-icon">
@@ -27,6 +27,15 @@
 .hov:hover {
   background-color: rgba(0, 0, 0, 0.116);
 }
+
+.tile-content > .tile-title {
+  margin-bottom: 0.2rem !important;
+}
+
+.voted-for {
+  /* background-color: #5755d9; */
+  border: 1px solid #5755d9;
+}
 </style>
 
 <script>
@@ -47,6 +56,10 @@ export default {
       required: true,
       default: 1,
     },
+    votedFor: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   methods: {
@@ -65,8 +78,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.tile-content > .tile-title {
-  margin-bottom: 0.2rem !important;
-}
-</style>

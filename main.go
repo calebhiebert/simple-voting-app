@@ -32,6 +32,7 @@ func main() {
 	private.POST("/vote/:subjectid", wrapHandler(routes.PostVote))
 	private.POST("/subjects", wrapHandler(routes.PostSubject))
 	private.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
+	private.GET("/me", wrapHandler(routes.GetMe))
 
 	r.Run("0.0.0.0:3000")
 }

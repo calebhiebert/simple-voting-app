@@ -7,8 +7,11 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column col-10 col-sm-12 col-xs-12 col-mx-auto">
-        <main-page-vote-view @selected="detailSubject(subject)" @click="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.votes.length / totalVotes"></main-page-vote-view>
+      <div class="column col-10 col-sm-11 col-mx-auto" v-if="sortedSubjects">
+        <main-page-vote-view @selected="detailSubject(subject)" @click="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.votes.length / totalVotes"></main-page-vote-view>
+      </div>
+      <div class="column col-10 col-sm-11 col-mx-auto" v-else>
+        <div class="loading loading-lg"></div>
       </div>
     </div>
     <div class="divider"></div>
@@ -49,6 +52,10 @@ export default {
       return this.$store.state.subjects;
     },
 
+    votedFor () {
+      return this.$store.getters.votedFor;
+    },
+
     sortedSubjects () {
       if (this.subjects) {
         return this.subjects.slice(0).sort((a, b) => {
@@ -86,15 +93,6 @@ export default {
     detailSubject (subject) {
       this.$store.commit('setSubject', subject);
       this.$router.push({ name: 'subject-view', params: { id: subject.id } });
-    },
-
-    vote (subjectId) {
-      api.vote(subjectId).then((vote) => {
-        return api.getSubject(subjectId).then((subject) => {
-          this.$store.commit('setSubject', subject);
-          return vote;
-        });
-      });
     },
   },
 };

@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"time"
+
 	"../models"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -34,6 +36,7 @@ func PostVote(c *gin.Context, db *gorm.DB) {
 		}
 	} else {
 		existingVote.SubjectID = subject.ID
+		existingVote.UpdatedAt = time.Now()
 
 		db.Save(existingVote)
 		c.JSON(200, existingVote)

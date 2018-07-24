@@ -1,15 +1,18 @@
 <template>
   <div class="clearfix">
     <div class="columns col-gapless">
-      <div class="column col-2 col-sm-3 text-center" v-if="!isMobile">
+      <div class="column col-1 col-lg-2 col-sm-3 text-center min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
         <div class="btn-group">
           <button class="btn btn-sm" @click="$router.push({name: 'home'})">
             <i class="icon icon-arrow-left"></i>
           </button>
-          <button class="btn btn-sm" :class="{'loading': voting}" @click="vote">Vote</button>
+          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote" v-if="!votedFor">Vote</button>
+          <button class="btn btn-sm btn-success" v-else>
+            <i class="icon icon-check"></i> Voted
+          </button>
         </div>
       </div>
-      <div class="column col-1 col-lg-2 col-sm-3 col-xs-3 text-center" :class="{'col-mx-auto': isMobile}">
+      <div class="column col-1 col-lg-2 col-sm-3 col-xs-3 text-center avatar-column" :class="{'col-mx-auto': isMobile}">
         <figure class="avatar avatar-xl">
           <img :src="avatarUrl" alt="avatar">
         </figure>
@@ -35,15 +38,18 @@
         <button class="btn btn-primary" @click="update" :class="{loading: saving}">Update</button>
       </div>
       <div class="column col-2 col-md-3 col-sm-12 col-ml-auto text-center" v-if="isMobile">
-        <button class="btn" :class="{'float-right': !isMobile}" @click="$router.push({name: 'home'})">
+        <button class="btn" @click="$router.push({name: 'home'})">
           <i class="icon icon-arrow-left"></i>
         </button>
-        <button class="btn" v-if="isMobile" :class="{'loading': voting}" @click="vote">Vote</button>
+        <button class="btn btn-primary" v-if="!votedFor" :class="{'loading': voting}" @click="vote">Vote</button>
+        <button class="btn btn-success" v-else>
+          <i class="icon icon-check"></i> Voted
+        </button>
       </div>
     </div>
     <div class="columns">
-      <div class="column col-6 col-sm-10 col-mx-auto">
-        <h4>Votes ({{ subject.votes.length }})</h4>
+      <div class="column col-6 col-sm-10 col-mx-auto edit-history">
+        <h4>Votes</h4>
         <votes :votes="subject.votes"></votes>
       </div>
       <div class="column col-6 col-sm-10 col-mx-auto edit-history">
@@ -72,6 +78,18 @@ h1 {
   margin-bottom: 0.2rem;
 }
 
+.min-90 {
+  width: 88px;
+}
+
+.min-90.voted-for {
+  width: 113px;
+}
+
+.avatar-column {
+  width: 75px;
+}
+
 @media screen and (max-width: 600px) {
   .edit-history {
     margin-top: 1rem;
@@ -82,6 +100,12 @@ h1 {
     padding-left: 1rem;
     margin-top: 1rem;
     margin-bottom: 1rem;
+  }
+}
+
+@media screen and (min-width: 600px) {
+  .avatar-column {
+    margin-right: 0.5rem;
   }
 }
 </style>
@@ -110,7 +134,7 @@ export default {
 
   mounted () {
     if (this.subject.history === null) {
-      this.update();
+      this.refresh();
     }
   },
 
@@ -133,6 +157,14 @@ export default {
     isMobile () {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
+
+    votedFor () {
+      if (this.$store.getters.votedFor) {
+        return this.subject.id === this.$store.getters.votedFor;
+      } else {
+        return false;
+      }
+    },
   },
 
   methods: {
@@ -144,6 +176,12 @@ export default {
 
     toggleEditHistory () {
       this.editHistoryVisible = !this.editHistoryVisible;
+    },
+
+    refresh () {
+      api.getSubject(this.subject.id).then((subject) => {
+        this.$store.commit('setSubject', subject);
+      });
     },
 
     update () {

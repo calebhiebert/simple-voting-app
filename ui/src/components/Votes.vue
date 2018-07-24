@@ -3,7 +3,7 @@
     <div v-if="votes.length === 0">
       <p>No votes here :(</p>
     </div>
-    <div class="tile" v-for="vote of votes" :key="vote.id">
+    <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
       <div class="tile-icon">
         <figure class="avatar">
           <img :src="getAvatarUrl(vote.voter)" alt="avatar">
@@ -48,6 +48,24 @@ export default {
     distanceInWordsToNow,
     getAvatarUrl (name) {
       return api.avatarURL(name);
+    },
+  },
+
+  computed: {
+    sortedVotes () {
+      if (this.votes) {
+        return this.votes.slice(0).sort((a, b) => {
+          if (a.updatedAt > b.updatedAt) {
+            return -1;
+          } else if (a.updatedAt < b.updatedAt) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+      } else {
+        return this.votes;
+      }
     },
   },
 };

@@ -3,6 +3,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import VueMq from 'vue-mq';
+import api from './api';
 
 Vue.config.productionTip = false;
 
@@ -21,3 +22,7 @@ new Vue({
   store,
   render: (h) => h(App),
 }).$mount('#app');
+
+api.getMe().then((me) => {
+  store.commit('setMe', me);
+});
