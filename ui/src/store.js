@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import router from '@/router';
 
 Vue.use(Vuex);
 
@@ -17,7 +18,6 @@ export default new Vuex.Store({
         const index = state.subjects.findIndex((s) => s.id === subject.id);
         if (index !== -1) {
           Vue.set(state.subjects, index, subject);
-          console.log(state.subjects[index], subject, state.subjects[index] === subject);
         }
       }
     },
@@ -31,9 +31,12 @@ export default new Vuex.Store({
   actions: {},
 
   getters: {
+    isAdmin (state) {
+      return router.currentRoute.query.admin === 'true';
+    },
     votedFor (state, getters) {
       if (state.me) {
-        if (state.subject) {
+        if (state.subject && state.subject.votes) {
           const votedForSubject = state.subject.votes.some((v) => {
             return v.voter === state.me.userId;
           });

@@ -3,7 +3,7 @@
     <div v-if="votes.length === 0">
       <p>No votes here :(</p>
     </div>
-    <transition-group name="fade-rev">
+    <transition-group name="fade-virt-rev">
       <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
         <div class="tile-icon">
           <figure class="avatar">

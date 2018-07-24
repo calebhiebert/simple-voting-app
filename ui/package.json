@@ -10,8 +10,10 @@
   "dependencies": {
     "auth0-lock": "^11.7.2",
     "axios": "^0.18.0",
+    "axios-retry": "^3.1.1",
     "core-js": "^2.5.7",
     "date-fns": "^1.29.0",
+    "vee-validate": "^2.1.0-beta.6",
     "vue": "^2.5.16",
     "vue-mq": "^0.2.1",
     "vue-router": "^3.0.1",

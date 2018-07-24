@@ -10,7 +10,11 @@
         <p class="tile-title"><user-name :userId="edit.editor"></user-name><i v-if="index === history.length - 1"> (Original)</i></p>
         <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
       </div>
+      <button class="btn btn-sm float-right" :class="{'loading': reverting}" v-if="$store.getters.isAdmin" @click="revert(edit)">
+        <i class="icon icon-refresh"></i>
+      </button>
     </div>
+
   </div>
   <div class="loading loading-lg" v-else></div>
 </template>
@@ -42,10 +46,24 @@ export default {
     },
   },
 
+  data () {
+    return {
+      reverting: false,
+    };
+  },
+
   methods: {
     distanceInWordsToNow,
     getAvatarUrl (name) {
       return api.avatarURL(name);
+    },
+
+    revert (history) {
+      this.reverting = true;
+      api.updateSubject(history.subjectId, history.personName, history.costumeDescription).then((subject) => {
+        this.reverting = false;
+        this.$store.commit('setSubject', subject);
+      });
     },
   },
 

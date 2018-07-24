@@ -5,6 +5,7 @@ import store from './store';
 import VueMq from 'vue-mq';
 import api from './api';
 import axios from 'axios';
+import VeeValidate from 'vee-validate';
 
 Vue.config.productionTip = false;
 
@@ -17,6 +18,8 @@ Vue.use(VueMq, {
     xl: 1280,
   },
 });
+
+Vue.use(VeeValidate, { events: '' });
 
 new Vue({
   router,

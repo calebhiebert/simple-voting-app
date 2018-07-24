@@ -1,12 +1,15 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import router from './router';
 
 const userCache = {};
 
 const http = axios.create({
   baseURL: `http://${location.hostname}:3000`,
-  timeout: 2500,
+  timeout: 5000,
 });
+
+axiosRetry(http, { retries: 4, retryDelay: axiosRetry.exponentialDelay });
 
 const handleAxiosResponse = (response) => {
   return response.data;
@@ -17,6 +20,8 @@ const handleAxiosError = (err) => {
 
   if (err.response && err.response && err.response.status === 401) {
     router.push({ name: 'login' });
+  } else {
+    return Promise.reject(err);
   }
 };
 
@@ -69,6 +74,13 @@ const updateSubject = (id, personName, costumeDescription) => {
     .catch(handleAxiosError);
 };
 
+const deleteSubject = (id) => {
+  return http
+    .delete(`/subjects/${id}`)
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
+};
+
 const getMe = () => {
   return http
     .get('/me')
@@ -92,6 +104,7 @@ export default {
   getSubject,
   updateSubject,
   createSubject,
+  deleteSubject,
   getUser,
   getMe,
   vote,

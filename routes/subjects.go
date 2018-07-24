@@ -61,6 +61,25 @@ func PatchSubject(c *gin.Context, db *gorm.DB) {
 	c.JSON(200, &dbSubject)
 }
 
+// DeleteSubject deletes a subject
+func DeleteSubject(c *gin.Context, db *gorm.DB) {
+	subject := models.Subject{}
+	id := c.Param("id")
+
+	if err := db.First(&subject, "id = ?", id).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			c.AbortWithStatus(404)
+		} else {
+			c.AbortWithStatusJSON(500, gin.H{"error": err})
+		}
+		return
+	}
+
+	db.Delete(&subject)
+
+	c.JSON(200, subject)
+}
+
 // GetSubjects returns a list of all subjects
 func GetSubjects(c *gin.Context, db *gorm.DB) {
 	subjects := []models.Subject{}

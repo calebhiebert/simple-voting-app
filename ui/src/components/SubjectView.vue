@@ -1,6 +1,7 @@
 <template>
   <div class="clearfix">
     <div class="columns col-gapless">
+      <!-- Navigation/Vote buttons for desktop -->
       <div class="column col-1 col-lg-2 col-sm-3 text-center min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
         <div class="btn-group">
           <button class="btn btn-sm" @click="$router.push({name: 'home'})">
@@ -12,11 +13,15 @@
           </button>
         </div>
       </div>
+
+      <!-- Avatar -->
       <div class="column col-1 col-lg-2 col-sm-3 col-xs-3 text-center avatar-column" :class="{'col-mx-auto': isMobile}">
         <figure class="avatar avatar-xl">
           <img :src="avatarUrl" alt="avatar">
         </figure>
       </div>
+
+      <!-- Name/Costume View -->
       <div class="column col-5 col-sm-12" :class="{'col-mx-auto': isMobile}" v-if="!editing">
         <div class="text-center show-sm">
           <h1>{{ subject.personName }}</h1>
@@ -27,16 +32,22 @@
           <h4 class="text-gray">{{ subject.costumeDescription }}</h4>
         </div>
       </div>
-      <div class="column col-10 col-sm-12 col-mx-auto edit-form" v-else>
-        <div class="form-group">
-          <input class="form-input input-lg" placeholder="Name" v-model.trim="eName">
+
+      <!-- Name/Costume Edit Form -->
+      <div class="column col-sm-12 col-mx-auto edit-form" v-else>
+        <div class="form-group" :class="{'has-error': errors.has('person_name')}">
+          <input class="form-input input-lg" data-vv-as="name" v-validate="{required: true, max: 255, min: 3}" name="person_name" placeholder="Name" v-model.trim="eName">
+          <p class="form-input-hint" v-if="errors.has('person_name')">{{ errors.first('person_name') }}</p>
         </div>
-        <div class="form-group">
-          <input class="form-input" placeholder="Costume" v-model.trim="eCostume">
+        <div class="form-group" :class="{'has-error': errors.has('costume')}">
+          <input class="form-input" name="costume" v-validate="{required: true, max: 255, min: 3}" placeholder="Costume" v-model.trim="eCostume">
+          <p class="form-input-hint" v-if="errors.has('costume')">{{ errors.first('costume') }}</p>
         </div>
         <button class="btn" @click="editing = false">Cancel</button>
         <button class="btn btn-primary" @click="update" :class="{loading: saving}">Update</button>
       </div>
+
+      <!-- Nagivation/Vote buttons for mobile -->
       <div class="column col-2 col-md-3 col-sm-12 col-ml-auto text-center" v-if="isMobile">
         <button class="btn" @click="$router.push({name: 'home'})">
           <i class="icon icon-arrow-left"></i>
@@ -47,21 +58,29 @@
         </button>
       </div>
     </div>
+
     <div class="columns">
-      <div class="column col-6 col-sm-10 col-mx-auto edit-history">
-        <h4>Votes</h4>
+
+      <!-- Votes view -->
+      <div class="column col-6 col-sm-10 col-mx-auto edit-history" v-if="subject.votes">
+        <h4 class="badge" :data-badge="subject.votes.length">Votes</h4>
         <votes :votes="subject.votes"></votes>
       </div>
+
+      <!-- Edit History View -->
       <div class="column col-6 col-sm-10 col-mx-auto edit-history">
         <button class="btn btn-action btn-sm float-right" @click="toggleEditHistory">
           <i class="icon" :class="{'icon-arrow-down': !editHistoryVisible, 'icon-arrow-up': editHistoryVisible}"></i>
         </button>
         <h4>Edit History</h4>
-        <edit-history :history="subject.history" v-if="subject && editHistoryVisible"></edit-history>
+        <transition name="fade-virt-rev">
+          <edit-history :history="subject.history" v-if="subject && editHistoryVisible"></edit-history>
+        </transition>
       </div>
     </div>
     <div class="divider"></div>
     <p class="text-center">Something not right here? Please <a @click="edit">fix it</a></p>
+    <p class="text-center" v-if="$store.getters.isAdmin"><a @click="deleteSubject">delete</a></p>
   </div>
 </template>
 
@@ -88,6 +107,10 @@ h1 {
 
 .avatar-column {
   width: 75px;
+}
+
+.edit-form {
+  margin-bottom: 1rem;
 }
 
 @media screen and (max-width: 600px) {
@@ -133,6 +156,10 @@ export default {
   },
 
   mounted () {
+    if (localStorage.getItem('edit-history') === 'true') {
+      this.editHistoryVisible = true;
+    }
+
     if (this.subject.history === null) {
       this.refresh();
     }
@@ -147,6 +174,14 @@ export default {
       eName: '',
       eCostume: '',
     };
+  },
+
+  watch: {
+    subject () {
+      if (this.subject.history === null) {
+        this.refresh();
+      }
+    },
   },
 
   computed: {
@@ -176,6 +211,7 @@ export default {
 
     toggleEditHistory () {
       this.editHistoryVisible = !this.editHistoryVisible;
+      localStorage.setItem('edit-history', this.editHistoryVisible);
     },
 
     refresh () {
@@ -185,19 +221,23 @@ export default {
     },
 
     update () {
-      this.saving = true;
-      api
-        .updateSubject(this.subject.id, this.eName, this.eCostume)
-        .then((subject) => {
-          return api.getSubject(subject.id).then((subject) => {
-            this.$store.commit('setSubject', subject);
-            return subject;
-          });
-        })
-        .then((subject) => {
-          this.editing = false;
-          this.saving = false;
-        });
+      this.$validator.validate().then((valid) => {
+        if (valid) {
+          this.saving = true;
+          api
+            .updateSubject(this.subject.id, this.eName, this.eCostume)
+            .then((subject) => {
+              return api.getSubject(subject.id).then((subject) => {
+                this.$store.commit('setSubject', subject);
+                return subject;
+              });
+            })
+            .then((subject) => {
+              this.editing = false;
+              this.saving = false;
+            });
+        }
+      });
     },
 
     vote () {
@@ -213,6 +253,13 @@ export default {
         .then((vote) => {
           this.voting = false;
         });
+    },
+
+    deleteSubject () {
+      api.deleteSubject(this.subject.id).then((subject) => {
+        console.log('Deleted', subject);
+        this.$router.replace({ name: 'home' });
+      });
     },
   },
 };
