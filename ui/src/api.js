@@ -1,4 +1,7 @@
 import axios from 'axios';
+import router from './router';
+
+const userCache = {};
 
 const http = axios.create({
   baseURL: `http://${location.hostname}:3000`,
@@ -9,12 +12,41 @@ const handleAxiosResponse = (response) => {
   return response.data;
 };
 
+const handleAxiosError = (err) => {
+  console.log(err, err.response);
+
+  if (err.response && err.response && err.response.status === 401) {
+    router.push({ name: 'login' });
+  }
+};
+
 const getSubjects = () => {
-  return http.get('/subjects').then(handleAxiosResponse);
+  return http
+    .get('/subjects')
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
+};
+
+const getUser = (id) => {
+  if (userCache[id]) {
+    return Promise.resolve(userCache[id]);
+  } else {
+    return http
+      .get(`/user/${id}`)
+      .then(handleAxiosResponse)
+      .then((user) => {
+        userCache[user.userId] = user;
+        return user;
+      })
+      .catch(handleAxiosError);
+  }
 };
 
 const getSubject = (id) => {
-  return http.get(`/subjects/${id}`).then(handleAxiosResponse);
+  return http
+    .get(`/subjects/${id}`)
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
 };
 
 const createSubject = (personName, costumeDescription) => {
@@ -23,7 +55,8 @@ const createSubject = (personName, costumeDescription) => {
       personName,
       costumeDescription,
     })
-    .then(handleAxiosResponse);
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
 };
 
 const updateSubject = (id, personName, costumeDescription) => {
@@ -32,11 +65,15 @@ const updateSubject = (id, personName, costumeDescription) => {
       personName,
       costumeDescription,
     })
-    .then(handleAxiosResponse);
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
 };
 
 const vote = (subjectId) => {
-  return http.post(`/vote/${subjectId}`).then(handleAxiosResponse);
+  return http
+    .post(`/vote/${subjectId}`)
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
 };
 
 const avatarURL = (name) => {
@@ -48,6 +85,7 @@ export default {
   getSubject,
   updateSubject,
   createSubject,
+  getUser,
   vote,
   avatarURL,
 };

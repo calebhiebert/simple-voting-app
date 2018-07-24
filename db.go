@@ -20,4 +20,5 @@ func startDatabase() {
 	db.AutoMigrate(&models.Vote{})
 	db.AutoMigrate(&models.Subject{})
 	db.AutoMigrate(&models.SubjectHistory{})
+	db.AutoMigrate(&models.User{})
 }

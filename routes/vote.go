@@ -10,16 +10,33 @@ import (
 func PostVote(c *gin.Context, db *gorm.DB) {
 	subject := models.Subject{}
 	user, _ := c.Get("user-info")
-	userData := user.(map[string]interface{})
 
-	db.First(&subject, "id = ?", c.Param("subjectid"))
-
-	vote := models.Vote{
-		Voter:     userData["sub"].(string),
-		SubjectID: subject.ID,
+	if err := db.First(&subject, "id = ?", c.Param("subjectid")).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			c.AbortWithStatusJSON(404, gin.H{"error": "not found"})
+			return
+		} else {
+			panic(err)
+		}
 	}
 
-	db.Create(&vote)
+	existingVote := models.Vote{}
 
-	c.JSON(200, vote)
+	if err := db.First(&existingVote, "voter = ?", user.(*models.User).UserID).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			vote := models.Vote{
+				Voter:     user.(*models.User).UserID,
+				SubjectID: subject.ID,
+			}
+
+			db.Create(&vote)
+			c.JSON(200, vote)
+		}
+	} else {
+		existingVote.SubjectID = subject.ID
+
+		db.Save(existingVote)
+		c.JSON(200, existingVote)
+	}
+
 }

@@ -7,7 +7,7 @@
         </figure>
       </div>
       <div class="tile-content">
-        <p class="tile-title">{{ edit.editor }}<i v-if="index === history.length - 1"> (Original)</i></p>
+        <p class="tile-title"><user-name :userId="edit.editor"></user-name><i v-if="index === history.length - 1"> (Original)</i></p>
         <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
       </div>
     </div>
@@ -25,10 +25,16 @@ p {
 </style>
 
 <script>
+import UserName from '@/components/UserName.vue';
+
 import api from '@/api';
 import { distanceInWordsToNow } from 'date-fns';
 
 export default {
+  components: {
+    UserName,
+  },
+
   props: {
     history: {
       type: Array,

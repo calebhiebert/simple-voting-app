@@ -8,7 +8,7 @@
     </div>
     <div class="columns">
       <div class="column col-10 col-sm-12 col-xs-12 col-mx-auto">
-        <main-page-vote-view @selected="detailSubject(subject)" @click="detailSubject(subject)" class="mt-2" v-for="subject of subjects" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="0.75"></main-page-vote-view>
+        <main-page-vote-view @selected="detailSubject(subject)" @click="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.votes.length / totalVotes"></main-page-vote-view>
       </div>
     </div>
     <div class="divider"></div>
@@ -47,6 +47,38 @@ export default {
   computed: {
     subjects () {
       return this.$store.state.subjects;
+    },
+
+    sortedSubjects () {
+      if (this.subjects) {
+        return this.subjects.slice(0).sort((a, b) => {
+          if (a.votes.length > b.votes.length) {
+            return -1;
+          } else if (a.votes.length < b.votes.length) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+      } else {
+        return null;
+      }
+    },
+
+    totalVotes () {
+      if (this.subjects) {
+        let votes = 0;
+
+        for (const subject of this.subjects) {
+          if (subject.votes) {
+            votes += subject.votes.length;
+          }
+        }
+
+        return votes;
+      } else {
+        return 0;
+      }
     },
   },
 

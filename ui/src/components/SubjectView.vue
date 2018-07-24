@@ -117,7 +117,6 @@ export default {
           });
         })
         .then((vote) => {
-          console.log(vote);
           this.voting = false;
         });
     },

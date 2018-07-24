@@ -9,6 +9,7 @@ import (
 // PostSubject creates a new subject
 func PostSubject(c *gin.Context, db *gorm.DB) {
 	subject := models.Subject{}
+	userInfo, _ := c.Get("user-info")
 
 	if err := c.ShouldBindJSON(&subject); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -18,7 +19,7 @@ func PostSubject(c *gin.Context, db *gorm.DB) {
 	db.Create(&subject)
 
 	db.Create(&models.SubjectHistory{
-		Editor:             "Joe Shmoe",
+		Editor:             userInfo.(*models.User).UserID,
 		PersonName:         subject.PersonName,
 		CostumeDescription: subject.CostumeDescription,
 		SubjectID:          subject.ID,
@@ -30,6 +31,7 @@ func PostSubject(c *gin.Context, db *gorm.DB) {
 // PatchSubject used for updating subjects
 func PatchSubject(c *gin.Context, db *gorm.DB) {
 	subject := models.Subject{}
+	userInfo, _ := c.Get("user-info")
 
 	if err := c.ShouldBindJSON(&subject); err != nil {
 		c.JSON(400, &gin.H{"error": err.Error()})
@@ -46,7 +48,7 @@ func PatchSubject(c *gin.Context, db *gorm.DB) {
 	}
 
 	db.Create(&models.SubjectHistory{
-		Editor:             "TODO",
+		Editor:             userInfo.(*models.User).UserID,
 		PersonName:         subject.PersonName,
 		CostumeDescription: subject.CostumeDescription,
 		SubjectID:          dbSubject.ID,
@@ -63,7 +65,7 @@ func PatchSubject(c *gin.Context, db *gorm.DB) {
 func GetSubjects(c *gin.Context, db *gorm.DB) {
 	subjects := []models.Subject{}
 
-	db.Find(&subjects)
+	db.Preload("Votes").Find(&subjects)
 
 	c.JSON(200, subjects)
 }
@@ -73,7 +75,15 @@ func GetSubject(c *gin.Context, db *gorm.DB) {
 	subject := models.Subject{}
 	id := c.Param("id")
 
-	db.Preload("Votes").Preload("History").First(&subject, "id = ?", id)
+	if err := db.Preload("Votes").Preload("History").First(&subject, "id = ?", id).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			c.AbortWithStatus(404)
+			return
+		} else {
+			c.AbortWithStatusJSON(500, gin.H{"error": err})
+			return
+		}
+	}
 
 	c.JSON(200, subject)
 }

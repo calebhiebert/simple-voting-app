@@ -13,7 +13,7 @@
             <input class="form-input" type="text" placeholder="ex. Super Apu" v-model="costumeDescription">
           </div>
           <button class="btn btn-error" @click="$router.push({name: 'home'})">Cancel</button>
-          <button class="btn" type="submit">Add</button>
+          <button class="btn" type="submit" :class="{'loading': saving}">Add</button>
         </form>
       </div>
     </div>
@@ -37,12 +37,14 @@ export default {
     return {
       personName: '',
       costumeDescription: '',
+      saving: false,
     };
   },
 
   methods: {
     submit (event) {
       event.preventDefault();
+      this.saving = true;
       api
         .createSubject(this.personName, this.costumeDescription)
         .then((result) => {
@@ -53,9 +55,11 @@ export default {
         })
         .then((result) => {
           this.$router.replace({ name: 'home' });
+          this.saving = false;
         })
         .catch((err) => {
           console.log(err.response);
+          this.saving = false;
         });
     },
   },

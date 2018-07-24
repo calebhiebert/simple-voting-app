@@ -23,6 +23,7 @@ func main() {
 	public := r.Group("")
 	public.GET("/subjects", wrapHandler(routes.GetSubjects))
 	public.GET("/subjects/:id", wrapHandler(routes.GetSubject))
+	public.GET("/user/:id", wrapHandler(routes.GetUser))
 
 	private := r.Group("")
 

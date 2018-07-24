@@ -21,29 +21,27 @@
 </style>
 
 <script>
+import { getLock } from '@/auth';
 import axios from 'axios';
 
 export default {
   created () {
-    const lock = new Auth0Lock('l15qBjZMwq4NVeKCwFruwJJpaWI4Dphy', 'halloween-voting.auth0.com', {
-      closeable: false,
-      languageDictionary: {
-        title: '',
-      },
-      theme: {
-        primaryColor: '#5755d9',
-        logo: '',
-      },
-    });
-
-    lock.on('authenticated', (authResult) => {
-      localStorage.setItem('access-token', authResult.accessToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${authResult.accessToken}`;
-      this.$router.replace({ name: 'home' });
-    });
+    const lock = getLock();
 
     if (location.hash === '') {
       lock.show();
+    } else {
+      lock.resumeAuth(location.hash, (err, result) => {
+        if (err) {
+          this.$router.replace({ name: 'login' });
+          lock.show();
+        } else {
+          localStorage.setItem('access-token', result.accessToken);
+          axios.defaults.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
+          this.$router.replace({ name: 'home' });
+          console.log(result);
+        }
+      });
     }
   },
 };

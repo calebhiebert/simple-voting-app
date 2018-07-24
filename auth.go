@@ -5,7 +5,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"fmt"
 
+	"github.com/jinzhu/gorm"
+
+	"./models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +26,17 @@ func Auth() gin.HandlerFunc {
 				return
 			}
 
-			c.Set("user-info", userInfo)
+			fmt.Println(userInfo);
+
+			dbUserInfo, err := findOrCreateUser(&models.User{
+				UserID: userInfo["sub"].(string),
+				Name:   userInfo["name"].(string),
+			})
+			if err != nil {
+				c.AbortWithStatusJSON(500, gin.H{"error": err})
+			}
+
+			c.Set("user-info", dbUserInfo)
 		} else {
 			c.Next()
 		}
@@ -40,6 +54,20 @@ func RequireAuth() gin.HandlerFunc {
 			c.Next()
 		}
 	}
+}
+
+func findOrCreateUser(user *models.User) (*models.User, error) {
+	dbUser := models.User{}
+
+	if err := db.Find(&dbUser, models.User{UserID: user.UserID}).Error; gorm.IsRecordNotFoundError(err) {
+		if createErr := db.Create(&user).Error; createErr != nil {
+			return nil, createErr
+		}
+
+		return user, nil
+	}
+
+	return &dbUser, nil
 }
 
 func getUserInfo(accessToken string) (map[string]interface{}, error) {

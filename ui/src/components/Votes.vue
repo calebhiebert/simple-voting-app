@@ -10,7 +10,7 @@
         </figure>
       </div>
       <div class="tile-content">
-        <p class="tile-title">{{ vote.voter }} - <i>{{ distanceInWordsToNow(vote.createdAt) }} ago</i></p>
+        <p class="tile-title"><user-name :userId="vote.voter"></user-name> - <i>{{ distanceInWordsToNow(vote.createdAt) }} ago</i></p>
       </div>
     </div>
   </div>
@@ -27,10 +27,16 @@ p {
 </style>
 
 <script>
+import UserName from '@/components/UserName.vue';
+
 import api from '@/api';
 import { distanceInWordsToNow } from 'date-fns';
 
 export default {
+  components: {
+    UserName,
+  },
+
   props: {
     votes: {
       type: Array,
