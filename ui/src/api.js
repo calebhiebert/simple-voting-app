@@ -11,6 +11,10 @@ const http = axios.create({
 
 axiosRetry(http, { retries: 4, retryDelay: axiosRetry.exponentialDelay });
 
+if (localStorage.getItem('access-token') !== null) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('access-token')}`;
+}
+
 const handleAxiosResponse = (response) => {
   return response.data;
 };
@@ -18,8 +22,10 @@ const handleAxiosResponse = (response) => {
 const handleAxiosError = (err) => {
   console.log(err, err.response);
 
-  if (err.response && err.response && err.response.status === 401) {
+  if (err.response && err.response.status === 401) {
     router.push({ name: 'login' });
+  } else if (err.response && err.response.status === 403) {
+    alert('You have been banned from voting and editing');
   } else {
     return Promise.reject(err);
   }
@@ -88,6 +94,27 @@ const getMe = () => {
     .catch(handleAxiosError);
 };
 
+const getUsers = () => {
+  return http
+    .get('/users')
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
+};
+
+const banUser = (id) => {
+  return http
+    .post(`/users/${id}/ban`)
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
+};
+
+const unBanUser = (id) => {
+  return http
+    .post(`/users/${id}/unban`)
+    .then(handleAxiosResponse)
+    .catch(handleAxiosError);
+};
+
 const vote = (subjectId) => {
   return http
     .post(`/vote/${subjectId}`)
@@ -106,6 +133,9 @@ export default {
   createSubject,
   deleteSubject,
   getUser,
+  getUsers,
+  banUser,
+  unBanUser,
   getMe,
   vote,
   avatarURL,

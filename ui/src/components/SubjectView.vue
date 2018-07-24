@@ -98,11 +98,11 @@ h1 {
 }
 
 .min-90 {
-  width: 88px;
+  width: 90px;
 }
 
 .min-90.voted-for {
-  width: 113px;
+  width: 120px;
 }
 
 .avatar-column {
@@ -235,6 +235,10 @@ export default {
             .then((subject) => {
               this.editing = false;
               this.saving = false;
+            })
+            .catch(() => {
+              this.saving = false;
+              this.editing = false;
             });
         }
       });
@@ -252,6 +256,10 @@ export default {
         })
         .then((vote) => {
           this.voting = false;
+        })
+        .catch((err) => {
+          this.voting = false;
+          console.error(err);
         });
     },
 

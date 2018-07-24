@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"fmt"
 
 	"github.com/jinzhu/gorm"
 
@@ -25,8 +24,6 @@ func Auth() gin.HandlerFunc {
 				c.AbortWithStatusJSON(401, gin.H{"error": "Invalid token"})
 				return
 			}
-
-			fmt.Println(userInfo);
 
 			dbUserInfo, err := findOrCreateUser(&models.User{
 				UserID: userInfo["sub"].(string),
@@ -49,6 +46,20 @@ func RequireAuth() gin.HandlerFunc {
 
 		if !exists {
 			c.AbortWithStatusJSON(401, gin.H{"error": "Must be logged in"})
+			return
+		} else {
+			c.Next()
+		}
+	}
+}
+
+// CheckBanned middleware to make sure the user is not banned
+func CheckBanned() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userInfo, _ := c.Get("user-info")
+
+		if userInfo.(*models.User).Banned {
+			c.AbortWithStatus(403)
 			return
 		} else {
 			c.Next()

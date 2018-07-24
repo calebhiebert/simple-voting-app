@@ -29,11 +29,19 @@ func main() {
 
 	private.Use(Auth())
 	private.Use(RequireAuth())
-	private.POST("/vote/:subjectid", wrapHandler(routes.PostVote))
-	private.POST("/subjects", wrapHandler(routes.PostSubject))
-	private.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
-	private.DELETE("/subjects/:id", wrapHandler(routes.DeleteSubject))
 	private.GET("/me", wrapHandler(routes.GetMe))
+	private.GET("/users", wrapHandler(routes.GetUsers))
+	private.POST("/users/:id/ban", wrapHandler(routes.SetUserBanStatus(true)))
+	private.POST("/users/:id/unban", wrapHandler(routes.SetUserBanStatus(false)))
+
+	banApplied := r.Group("")
+	banApplied.Use(Auth())
+	banApplied.Use(RequireAuth())
+	banApplied.Use(CheckBanned())
+	banApplied.POST("/vote/:subjectid", wrapHandler(routes.PostVote))
+	banApplied.POST("/subjects", wrapHandler(routes.PostSubject))
+	banApplied.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
+	banApplied.DELETE("/subjects/:id", wrapHandler(routes.DeleteSubject))
 
 	r.Run("0.0.0.0:3000")
 }

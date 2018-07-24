@@ -1,5 +1,10 @@
 <template>
   <div id="app">
+    <div class="toast toast-warning text-center" v-if="$store.state.me && $store.state.me.banned">
+      <strong>Warning</strong>
+      <br/>
+      You have been banned from voting, editing, and adding new guests
+    </div>
     <transition
       name="fade-virt">
     <router-view style="position: absolute;"/>

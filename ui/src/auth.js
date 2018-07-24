@@ -7,7 +7,7 @@ export const getLock = () => {
     return lock;
   } else {
     lock = new Auth0Lock('l15qBjZMwq4NVeKCwFruwJJpaWI4Dphy', 'halloween-voting.auth0.com', {
-      closeable: false,
+      closable: false,
       auth: {
         autoParseHash: false,
       },
