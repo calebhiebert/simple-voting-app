@@ -24,10 +24,12 @@ export default {
   },
 
   created () {
-    this.$store.commit('setSubject', null);
-    api.getSubject(this.$route.params.id).then((subject) => {
-      this.$store.commit('setSubject', subject);
-    });
+    if (this.subject === null) {
+      this.$store.commit('setSubject', null);
+      api.getSubject(this.$route.params.id).then((subject) => {
+        this.$store.commit('setSubject', subject);
+      });
+    }
   },
 
   computed: {

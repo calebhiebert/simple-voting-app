@@ -10,7 +10,7 @@
         </figure>
       </div>
       <div class="tile-content">
-        <p class="tile-title"><user-name :userId="vote.voter"></user-name> - <i>{{ distanceInWordsToNow(vote.createdAt) }} ago</i></p>
+        <p class="tile-title"><user-name :userId="vote.voter"></user-name> - <i>{{ distanceInWordsToNow(vote.updatedAt) }} ago</i></p>
       </div>
     </div>
   </div>

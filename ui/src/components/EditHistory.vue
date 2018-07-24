@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="sortedHistory !== null">
     <div class="tile" v-for="(edit, index) of sortedHistory" :key="edit.id">
       <div class="tile-icon">
         <figure class="avatar">
@@ -12,6 +12,7 @@
       </div>
     </div>
   </div>
+  <div class="loading loading-lg" v-else></div>
 </template>
 
 <style scoped>
@@ -38,7 +39,6 @@ export default {
   props: {
     history: {
       type: Array,
-      required: true,
     },
   },
 
@@ -51,15 +51,19 @@ export default {
 
   computed: {
     sortedHistory () {
-      return this.history.slice(0).sort((a, b) => {
-        if (a.createdAt < b.createdAt) {
-          return 1;
-        } else if (a.createdAt > b.createdAt) {
-          return -1;
-        } else {
-          return 0;
-        }
-      });
+      if (this.history) {
+        return this.history.slice(0).sort((a, b) => {
+          if (a.createdAt < b.createdAt) {
+            return 1;
+          } else if (a.createdAt > b.createdAt) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+      } else {
+        return null;
+      }
     },
   },
 };

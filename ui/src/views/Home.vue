@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="columns mt-2">
-      <div class="column col-6 col-mx-auto text-center">
+      <div class="column col-6 col-sm-10 col-mx-auto text-center">
         <h1>Guests</h1>
         <p>Please select the person you would like to vote for</p>
       </div>
@@ -84,7 +84,17 @@ export default {
 
   methods: {
     detailSubject (subject) {
+      this.$store.commit('setSubject', subject);
       this.$router.push({ name: 'subject-view', params: { id: subject.id } });
+    },
+
+    vote (subjectId) {
+      api.vote(subjectId).then((vote) => {
+        return api.getSubject(subjectId).then((subject) => {
+          this.$store.commit('setSubject', subject);
+          return vote;
+        });
+      });
     },
   },
 };
