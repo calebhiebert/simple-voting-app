@@ -1,6 +1,10 @@
 package main
 
 import (
+	"log"
+	"os"
+	"strings"
+
 	"./models"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -11,8 +15,25 @@ var db *gorm.DB
 var err error
 
 func startDatabase() {
-	// db, err = gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=postgres password=password sslmode=disable")
-	db, err = gorm.Open("sqlite3", "test.db")
+	switch os.Getenv("DATABASE") {
+	case "postgres":
+		connectionString := os.Getenv("POSTGRES_CONNECTION_STRING")
+
+		if len(strings.TrimSpace(connectionString)) == 0 {
+			log.Fatal("Missing postgres connection string")
+		} else {
+			db, err = gorm.Open("postgres", connectionString)
+		}
+		break
+	case "sqlite":
+		db, err = gorm.Open("sqlite3", "votes.db")
+		break
+	default:
+		println("Database type " + os.Getenv("DATABASE") + "is not supported, using sqlite")
+		db, err = gorm.Open("sqlite3", "votes.db")
+		break
+	}
+
 	if err != nil {
 		panic(err)
 	}

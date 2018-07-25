@@ -8,17 +8,10 @@ services:
   app:
     image: panchem/voter
     build: .
-    environment: 
-      PORT: 8080
-    labels:
-      - "traefik.backend=be"
-      - "traefik.docker.network=proxy"
-      - "traefik.enable=true"
-      - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:vote.panchem.io"
-      - "traefik.default.protocol=http"
-      - "traefik.frontend.priority=20"
-networks:
-  default:
-    external:
-      name: proxy
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./postgres:/var/lib/postgresql/data"
+    environment:
+      DATABASE: postgres
+      POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres dbname=postgres password=password sslmode=disable"
