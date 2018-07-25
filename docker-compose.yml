@@ -18,3 +18,7 @@ services:
       - "traefik.frontend.rule=Host:vote.panchem.io"
       - "traefik.default.protocol=http"
       - "traefik.frontend.priority=20"
+networks:
+  default:
+    external:
+      name: proxy
