@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"./routes"
 
@@ -15,6 +17,7 @@ import (
 func main() {
 	ex, _ := os.Executable()
 	exPath := filepath.Dir(ex)
+	println("Looking for static resources at " + exPath + "/dist")
 
 	startDatabase()
 	defer db.Close()
@@ -24,13 +27,24 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"PATCH", "DELETE"},
-		AllowHeaders:    []string{"Content-Type", "Authorization"},
+		AllowHeaders: []string{
+			"Content-Type",
+			"Authorization",
+			"Content-Security-Policy",
+			"X-Frame-Options",
+			"X-Content-Type-Options",
+			"X-XSS-Protection",
+			"Strict-Transport-Security"},
 	}))
 
-	r.Use(static.Serve("/", static.LocalFile(exPath+"/dist", true)))
-	r.NoRoute(func(c *gin.Context) {
-		c.File(exPath+"/dist/index.html")
-	})
+	headersHandler := func(c *gin.Context) {
+		c.Header("Content-Security-Policy", "frame-ancestors 'none'")
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("Strict-Transport-Security", "max-age="+strconv.FormatInt(time.Now().Add(24*time.Hour).Unix(), 10)+"; preload")
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-XSS-Protection", "1; mode=block")
+		c.Header("Cache-Control", "max-age=3600")
+	}
 
 	baseAPI := r.Group("/api")
 
@@ -56,6 +70,14 @@ func main() {
 	banApplied.POST("/subjects", wrapHandler(routes.PostSubject))
 	banApplied.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
 	banApplied.DELETE("/subjects/:id", wrapHandler(routes.DeleteSubject))
+
+	r.Use(headersHandler)
+
+	r.Use(static.Serve("/", static.LocalFile(exPath+"/dist", false)))
+	r.Any("", func(c *gin.Context) {
+		c.Header("Cache-Control", "no-cache")
+		c.File(exPath + "/dist/index.html")
+	})
 
 	r.Run()
 }
