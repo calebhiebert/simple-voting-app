@@ -62,12 +62,6 @@ export default {
     },
   },
 
-  methods: {
-    vote () {
-      console.log('Vote');
-    },
-  },
-
   computed: {
     barWidth () {
       return this.votePercent * 100 + '%';

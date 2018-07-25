@@ -25,7 +25,6 @@ export default {
 
   created () {
     if (this.subject === null) {
-      this.$store.commit('setSubject', null);
       api.getSubject(this.$route.params.id).then((subject) => {
         this.$store.commit('setSubject', subject);
       });

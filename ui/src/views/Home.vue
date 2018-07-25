@@ -91,9 +91,32 @@ export default {
 
   methods: {
     detailSubject (subject) {
-      console.log('Setting Subject', subject);
       this.$store.commit('setSubject', subject);
-      console.log('Navigating to route');
+
+      if (this.$store.state.settings.autoVoteOnClick) {
+        if (this.$store.state.subject.votes) {
+          const vote = {
+            id: -1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            deletedAt: null,
+            subjectId: subject.id,
+            voter: this.$store.state.me.userId,
+          };
+
+          this.$store.commit('patchSubjectVote', vote);
+        }
+
+        api
+          .vote(subject.id)
+          .then((vote) => {
+            return api.getSubject(subject.id);
+          })
+          .then((subject) => {
+            this.$store.commit('setSubject', subject);
+          });
+      }
+
       this.$router.push(`/subject/${subject.id}`);
     },
   },

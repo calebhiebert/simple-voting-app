@@ -22,6 +22,7 @@
 
 <script>
 import { getLock } from '@/auth';
+import api from '@/api';
 import axios from 'axios';
 
 export default {
@@ -38,7 +39,11 @@ export default {
         } else {
           localStorage.setItem('access-token', result.accessToken);
           axios.defaults.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
-          this.$router.replace({ name: 'home' });
+
+          api.getMe().then((me) => {
+            this.$store.commit('setMe', me);
+            this.$router.replace({ name: 'home' });
+          });
         }
       });
     }

@@ -216,7 +216,7 @@ export default {
 
     refresh () {
       api.getSubject(this.subject.id).then((subject) => {
-        this.$store.commit('setSubject', subject);
+        this.$store.commit('setSubject', { history: subject.history });
       });
     },
 
@@ -265,7 +265,6 @@ export default {
 
     deleteSubject () {
       api.deleteSubject(this.subject.id).then((subject) => {
-        console.log('Deleted', subject);
         this.$router.replace({ name: 'home' });
       });
     },

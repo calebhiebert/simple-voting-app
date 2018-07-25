@@ -67,7 +67,6 @@ export default {
               this.saving = false;
             })
             .catch((err) => {
-              console.log(err.response);
               this.saving = false;
             });
         }
