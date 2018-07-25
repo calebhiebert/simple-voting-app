@@ -10,6 +10,7 @@ services:
   app:
     image: panchem/voter
     build: .
+    restart: on-failure
     environment:
       DATABASE: postgres
       POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres dbname=postgres password=password sslmode=disable"

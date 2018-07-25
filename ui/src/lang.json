@@ -1,0 +1,9 @@
+{
+  "title": "Costume Voting",
+  "subtitle": "Please select the person you would like to vote for",
+  "addNotice": "Don't see the person/costume you're looking for?",
+  "addText": "Add them",
+  "editNotice": "Something not right here? Please",
+  "editText": "Fix it",
+  "banNotice": "You have been banned from voting, editing, and adding new guests"
+}

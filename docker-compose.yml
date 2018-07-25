@@ -8,6 +8,7 @@ services:
   app:
     image: panchem/voter
     build: .
+    restart: on-failure
     ports:
       - "8080:8080"
     volumes:

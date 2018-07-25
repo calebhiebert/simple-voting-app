@@ -1,13 +1,5 @@
 <template>
   <div class="clearfix">
-    <transition name="fade-virt-rev">
-      <div class="toast toast-success" v-if="voteCountedToast">
-        <button class="btn btn-clear float-right" @click="voteCountedToast = false"></button>
-        <i class="icon icon-check"></i>
-        Your vote has been counted
-      </div>
-    </transition>
-
     <div class="columns col-gapless">
       <!-- Navigation/Vote buttons for desktop -->
       <div class="column col-1 col-lg-2 col-sm-3 text-center min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
@@ -87,7 +79,7 @@
       </div>
     </div>
     <div class="divider"></div>
-    <p class="text-center" v-if="!$store.getters.isBanned">Something not right here? Please <a @click="edit">fix it</a></p>
+    <p class="text-center" v-if="!$store.getters.isBanned">{{ lang.editNotice }} <a @click="edit">{{ lang.editText }}</a></p>
     <p class="text-center" v-if="$store.getters.isAdmin"><a @click="deleteSubject">delete</a></p>
   </div>
 </template>
@@ -95,10 +87,6 @@
 <style scoped>
 a {
   cursor: pointer;
-}
-
-.toast {
-  margin-bottom: 1rem;
 }
 
 button {
@@ -147,6 +135,7 @@ h1 {
 
 <script>
 import api from '@/api';
+import lang from '@/lang.json';
 
 import EditHistory from '@/components/EditHistory.vue';
 import Votes from '@/components/Votes.vue';
@@ -173,17 +162,17 @@ export default {
     }
 
     if (this.$route.query.voted === true) {
-      this.voteCountedToast = true;
+      this.$store.commit('toast', 'Your vote has been counted');
       this.$router.replace({ name: 'subject-view', params: { id: this.$route.params.id } });
     }
   },
 
   data () {
     return {
+      lang,
       editing: false,
       saving: false,
       voting: false,
-      voteCountedToast: false,
       eName: '',
       eCostume: '',
     };

@@ -4,11 +4,14 @@ import router from '@/router';
 
 Vue.use(Vuex);
 
+let toastTimeout = null;
+
 export default new Vuex.Store({
   state: {
     subjects: null,
     subject: null,
     me: null,
+    toast: '',
     settings: {
       autoVoteOnClick: true,
       autoLogoutOnVote: false,
@@ -16,6 +19,18 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    toast (state, toast) {
+      state.toast = toast;
+
+      if (toastTimeout) {
+        clearTimeout(toastTimeout);
+      }
+
+      toastTimeout = setTimeout(() => {
+        state.toast = '';
+      }, 2500);
+    },
+
     setSubject (state, subject) {
       if (state.subject === null) {
         state.subject = subject;

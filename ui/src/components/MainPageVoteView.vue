@@ -3,7 +3,7 @@
     <div class="column">
       <div class="tile">
         <div class="tile-icon">
-          <figure class="avatar avatar-lg">
+          <figure class="avatar avatar-lg" :class="{'badge': votedFor}">
             <img :src="avatarUrl">
           </figure>
         </div>
@@ -33,8 +33,8 @@
 }
 
 .voted-for {
-  /* background-color: #5755d9; */
-  border: 1px solid #5755d9;
+  background-color: #5755d917;
+  /* border: 1px solid #5755d9; */
 }
 </style>
 

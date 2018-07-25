@@ -1,16 +1,9 @@
 <template>
   <div class="container">
-    <modal ref="settings" title="Settings">
-      <settings></settings>
-    </modal>
-    <button class="btn btn-sm mt-2 fixed" @click="showSettings">
-      <i class="icon icon-more-vert"></i>
-      <span v-if="!isMobile">Settings</span>
-    </button>
     <div class="columns mt-2">
       <div class="column col-8 col-sm-10 col-mx-auto text-center">
-        <h1>Costume Voting</h1>
-        <p>Please select the person you would like to vote for</p>
+        <h1>{{ lang.title }}</h1>
+        <p>{{ lang.subtitle }}</p>
       </div>
     </div>
     <div class="columns">
@@ -24,7 +17,7 @@
     <div class="divider"></div>
     <div class="columns" v-if="!$store.getters.isBanned">
       <div class="column col-mx-auto text-center">
-        Don't see the person/costume you're looking for? <router-link :to="{name: 'subject-create'}">Add them</router-link>
+        {{ lang.addNotice }} <router-link :to="{name: 'subject-create'}">{{ lang.addText }}</router-link>
       </div>
     </div>
   </div>
@@ -43,6 +36,7 @@ import api from '../api';
 import MainPageVoteView from '@/components/MainPageVoteView.vue';
 import Modal from '@/components/Modal.vue';
 import Settings from '@/components/Settings.vue';
+import lang from '@/lang.json';
 
 export default {
   name: 'home',
@@ -58,6 +52,10 @@ export default {
     });
   },
 
+  data () {
+    return { lang };
+  },
+
   computed: {
     subjects () {
       return this.$store.state.subjects;
@@ -65,10 +63,6 @@ export default {
 
     votedFor () {
       return this.$store.getters.votedFor;
-    },
-
-    isMobile () {
-      return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
     sortedSubjects () {
@@ -105,10 +99,6 @@ export default {
   },
 
   methods: {
-    showSettings () {
-      this.$refs.settings.show();
-    },
-
     detailSubject (subject) {
       this.$store.commit('setSubject', subject);
 
