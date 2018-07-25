@@ -168,10 +168,6 @@ export default {
   },
 
   mounted () {
-    if (localStorage.getItem('edit-history') === 'true') {
-      this.editHistoryVisible = true;
-    }
-
     if (this.subject.history === null) {
       this.refresh();
     }
@@ -187,7 +183,6 @@ export default {
       editing: false,
       saving: false,
       voting: false,
-      editHistoryVisible: false,
       voteCountedToast: false,
       eName: '',
       eCostume: '',
@@ -218,6 +213,15 @@ export default {
         return false;
       }
     },
+
+    editHistoryVisible: {
+      get () {
+        return this.$store.state.settings.editHistoryVisible;
+      },
+      set (value) {
+        this.$store.commit('setting', { setting: 'editHistoryVisible', value });
+      },
+    },
   },
 
   methods: {
@@ -229,7 +233,6 @@ export default {
 
     toggleEditHistory () {
       this.editHistoryVisible = !this.editHistoryVisible;
-      localStorage.setItem('edit-history', this.editHistoryVisible);
     },
 
     refresh () {

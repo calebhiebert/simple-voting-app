@@ -13,6 +13,8 @@ api.getMe().then((me) => {
   store.commit('setMe', me);
 });
 
+store.dispatch('loadSettings');
+
 Vue.config.productionTip = false;
 
 Vue.use(VueMq, {

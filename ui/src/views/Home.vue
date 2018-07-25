@@ -1,8 +1,15 @@
 <template>
   <div class="container">
+    <modal ref="settings" title="Settings">
+      <settings></settings>
+    </modal>
+    <button class="btn btn-sm mt-2 fixed" @click="showSettings">
+      <i class="icon icon-more-vert"></i>
+      <span v-if="!isMobile">Settings</span>
+    </button>
     <div class="columns mt-2">
-      <div class="column col-6 col-sm-10 col-mx-auto text-center">
-        <h1>Guests</h1>
+      <div class="column col-8 col-sm-10 col-mx-auto text-center">
+        <h1>Costume Voting</h1>
         <p>Please select the person you would like to vote for</p>
       </div>
     </div>
@@ -34,11 +41,15 @@ import api from '../api';
 
 // @ is an alias to /src
 import MainPageVoteView from '@/components/MainPageVoteView.vue';
+import Modal from '@/components/Modal.vue';
+import Settings from '@/components/Settings.vue';
 
 export default {
   name: 'home',
   components: {
     MainPageVoteView,
+    Modal,
+    Settings,
   },
 
   created () {
@@ -54,6 +65,10 @@ export default {
 
     votedFor () {
       return this.$store.getters.votedFor;
+    },
+
+    isMobile () {
+      return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
     sortedSubjects () {
@@ -90,6 +105,10 @@ export default {
   },
 
   methods: {
+    showSettings () {
+      this.$refs.settings.show();
+    },
+
     detailSubject (subject) {
       this.$store.commit('setSubject', subject);
 

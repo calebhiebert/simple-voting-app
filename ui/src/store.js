@@ -12,6 +12,7 @@ export default new Vuex.Store({
     settings: {
       autoVoteOnClick: true,
       autoLogoutOnVote: false,
+      editHistoryVisible: false,
     },
   },
   mutations: {
@@ -50,8 +51,24 @@ export default new Vuex.Store({
         }
       }
     },
+    setting (state, { setting, value }) {
+      state.settings[setting] = value;
+      localStorage.setItem('settings', JSON.stringify(state.settings));
+    },
   },
-  actions: {},
+  actions: {
+    loadSettings (ctx) {
+      const settings = localStorage.getItem('settings');
+
+      if (settings !== null) {
+        const parsedSettings = JSON.parse(settings);
+
+        for (const setting in parsedSettings) {
+          ctx.commit('setting', { setting, value: parsedSettings[setting] });
+        }
+      }
+    },
+  },
 
   getters: {
     isAdmin (state) {
