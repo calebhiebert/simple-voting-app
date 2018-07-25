@@ -8,7 +8,7 @@
     </div>
     <div class="columns">
       <div class="column col-10 col-sm-11 col-mx-auto" v-if="sortedSubjects">
-        <main-page-vote-view @selected="detailSubject(subject)" @click="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.votes.length / totalVotes"></main-page-vote-view>
+        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.votes.length / totalVotes"></main-page-vote-view>
       </div>
       <div class="column col-10 col-sm-11 col-mx-auto" v-else>
         <div class="loading loading-lg"></div>
@@ -91,8 +91,10 @@ export default {
 
   methods: {
     detailSubject (subject) {
+      console.log('Setting Subject', subject);
       this.$store.commit('setSubject', subject);
-      this.$router.push({ name: 'subject-view', params: { id: subject.id } });
+      console.log('Navigating to route');
+      this.$router.push(`/subject/${subject.id}`);
     },
   },
 };

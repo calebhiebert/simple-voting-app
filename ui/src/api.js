@@ -8,7 +8,7 @@ const http = axios.create({
   baseURL:
     process.env.NODE_ENV === 'production'
       ? `${location.protocol}//${location.host}/api`
-      : `http://${location.hostname}`,
+      : `http://${location.hostname}:3000/api`,
   timeout: 5000,
 });
 

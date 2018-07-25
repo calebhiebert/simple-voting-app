@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
+
 	"./routes"
 
 	"github.com/gin-contrib/cors"
@@ -10,6 +13,9 @@ import (
 )
 
 func main() {
+	ex, _ := os.Executable()
+	exPath := filepath.Dir(ex)
+
 	startDatabase()
 	defer db.Close()
 
@@ -21,19 +27,19 @@ func main() {
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	r.Use(static.Serve("/", static.LocalFile("./dist", true)))
+	r.Use(static.Serve("/", static.LocalFile(exPath+"/dist", true)))
 	r.NoRoute(func(c *gin.Context) {
-		c.File("./dist/index.html")
+		c.File(exPath+"/dist/index.html")
 	})
 
-	baseApi := r.Group("/api")
+	baseAPI := r.Group("/api")
 
-	public := baseApi.Group("")
+	public := baseAPI.Group("")
 	public.GET("/subjects", wrapHandler(routes.GetSubjects))
 	public.GET("/subjects/:id", wrapHandler(routes.GetSubject))
 	public.GET("/user/:id", wrapHandler(routes.GetUser))
 
-	private := baseApi.Group("")
+	private := baseAPI.Group("")
 
 	private.Use(Auth())
 	private.Use(RequireAuth())
@@ -42,7 +48,7 @@ func main() {
 	private.POST("/users/:id/ban", wrapHandler(routes.SetUserBanStatus(true)))
 	private.POST("/users/:id/unban", wrapHandler(routes.SetUserBanStatus(false)))
 
-	banApplied := baseApi.Group("")
+	banApplied := baseAPI.Group("")
 	banApplied.Use(Auth())
 	banApplied.Use(RequireAuth())
 	banApplied.Use(CheckBanned())

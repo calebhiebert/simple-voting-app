@@ -1,2 +1,5 @@
 ui/node_modules
 dist
+test.db
+voter
+ui/dist

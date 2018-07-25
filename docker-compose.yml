@@ -6,7 +6,8 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
   app:
-    image: ${APP_IMAGE}
+    image: panchem/voter
+    build: .
     environment: 
       PORT: 8080
     labels:
@@ -14,6 +15,6 @@ services:
       - "traefik.docker.network=proxy"
       - "traefik.enable=true"
       - "traefik.port=8080"
-      - "traefik.frontend.rule=PathPrefixStrip:/api/"
+      - "traefik.frontend.rule=Host:vote.panchem.io"
       - "traefik.default.protocol=http"
       - "traefik.frontend.priority=20"
