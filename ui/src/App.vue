@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="toast toast-warning text-center" v-if="$store.state.me && $store.state.me.banned">
+    <div class="toast toast-warning text-center" v-if="$store.state.me && $store.getters.isBanned">
       <strong>Warning</strong>
       <br/>
       You have been banned from voting, editing, and adding new guests

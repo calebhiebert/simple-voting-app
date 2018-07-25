@@ -17,5 +17,5 @@ RUN apk --no-cache add ca-certificates
 RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2 && mkdir /app && mkdir /app/dist
 COPY --from=1 /src/app/voter /app/voter
 COPY --from=0 /usr/src/build/dist/ /app/dist
-ENV GIN_MODE=debug
+ENV GIN_MODE=release
 CMD [ "/app/voter" ]

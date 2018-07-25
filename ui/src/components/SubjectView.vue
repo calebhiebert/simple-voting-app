@@ -15,8 +15,8 @@
           <button class="btn btn-sm" @click="$router.push({name: 'home'})">
             <i class="icon icon-arrow-left"></i>
           </button>
-          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote" v-if="!votedFor">Vote</button>
-          <button class="btn btn-sm btn-success" v-else>
+          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote" v-if="!votedFor && !$store.getters.isBanned">Vote</button>
+          <button class="btn btn-sm btn-success" v-else-if="!$store.getters.isBanned">
             <i class="icon icon-check"></i> Voted
           </button>
         </div>
@@ -60,8 +60,8 @@
         <button class="btn" @click="$router.push({name: 'home'})">
           <i class="icon icon-arrow-left"></i>
         </button>
-        <button class="btn btn-primary" v-if="!votedFor" :class="{'loading': voting}" @click="vote">Vote</button>
-        <button class="btn btn-success" v-else>
+        <button class="btn btn-primary" v-if="!votedFor && !$store.getters.isBanned" :class="{'loading': voting}" @click="vote">Vote</button>
+        <button class="btn btn-success" v-else-if="!$store.getters.isBanned">
           <i class="icon icon-check"></i> Voted
         </button>
       </div>
@@ -87,7 +87,7 @@
       </div>
     </div>
     <div class="divider"></div>
-    <p class="text-center">Something not right here? Please <a @click="edit">fix it</a></p>
+    <p class="text-center" v-if="!$store.getters.isBanned">Something not right here? Please <a @click="edit">fix it</a></p>
     <p class="text-center" v-if="$store.getters.isAdmin"><a @click="deleteSubject">delete</a></p>
   </div>
 </template>

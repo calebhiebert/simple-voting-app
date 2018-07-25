@@ -28,7 +28,7 @@ const handleAxiosError = (err) => {
   if (err.response && err.response.status === 401) {
     router.push({ name: 'login' });
   } else if (err.response && err.response.status === 403) {
-    alert('You have been banned from voting and editing');
+    location.reload();
   } else {
     return Promise.reject(err);
   }

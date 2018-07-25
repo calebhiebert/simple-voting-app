@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="divider"></div>
-    <div class="columns">
+    <div class="columns" v-if="!$store.getters.isBanned">
       <div class="column col-mx-auto text-center">
         Don't see the person/costume you're looking for? <router-link :to="{name: 'subject-create'}">Add them</router-link>
       </div>
@@ -93,7 +93,7 @@ export default {
     detailSubject (subject) {
       this.$store.commit('setSubject', subject);
 
-      if (this.$store.state.settings.autoVoteOnClick) {
+      if (this.$store.state.settings.autoVoteOnClick && !this.$store.getters.isBanned) {
         if (this.$store.getters.votedFor !== subject.id) {
           if (this.$store.state.subject.votes) {
             const vote = {
@@ -119,7 +119,11 @@ export default {
         }
       }
 
-      this.$router.push({ name: 'subject-view', params: { id: subject.id }, query: { voted: true } });
+      this.$router.push({
+        name: 'subject-view',
+        params: { id: subject.id },
+        query: { voted: this.$store.state.settings.autoVoteOnClick && !this.$store.getters.isBanned },
+      });
     },
   },
 };

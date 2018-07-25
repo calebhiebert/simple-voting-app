@@ -57,6 +57,13 @@ export default new Vuex.Store({
     isAdmin (state) {
       return router.currentRoute.query.admin === 'true';
     },
+    isBanned (state) {
+      if (state.me) {
+        return state.me.banned;
+      } else {
+        return false;
+      }
+    },
     votedFor (state, getters) {
       if (state.me) {
         if (state.subject && state.subject.votes) {
