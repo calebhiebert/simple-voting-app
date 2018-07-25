@@ -16,3 +16,4 @@ voter
 *node_modules
 test.db
 *dist
+postgres
