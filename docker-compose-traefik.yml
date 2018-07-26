@@ -11,6 +11,8 @@ services:
     image: panchem/voter
     build: .
     restart: on-failure
+    depends_on:
+      - postgres
     environment:
       DATABASE: postgres
       POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres dbname=postgres password=password sslmode=disable"
@@ -22,6 +24,10 @@ services:
       - "traefik.frontend.rule=Host:${HOST_URL}"
       - "traefik.default.protocol=http"
       - "traefik.frontend.priority=20"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.STSPreload=true"
+
 networks:
   default:
     external:

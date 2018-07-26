@@ -3,8 +3,6 @@ package main
 import (
 	"os"
 	"path/filepath"
-	"strconv"
-	"time"
 
 	"./routes"
 
@@ -38,12 +36,13 @@ func main() {
 	}))
 
 	headersHandler := func(c *gin.Context) {
-		c.Header("Content-Security-Policy", "frame-ancestors 'none'")
-		c.Header("X-Frame-Options", "DENY")
-		c.Header("Strict-Transport-Security", "max-age="+strconv.FormatInt(time.Now().Add(24*time.Hour).Unix(), 10)+"; preload")
-		c.Header("X-Content-Type-Options", "nosniff")
-		c.Header("X-XSS-Protection", "1; mode=block")
-		c.Header("Cache-Control", "max-age=3600")
+		if os.Getenv("GIN_MODE") == "release" {
+			c.Header("Content-Security-Policy", "frame-ancestors 'none'; default-src https:; object-src 'none'; img-src *; script-src 'self'; style-src 'self'")
+			c.Header("X-Frame-Options", "DENY")
+			c.Header("X-Content-Type-Options", "nosniff")
+			c.Header("X-XSS-Protection", "1; mode=block")
+			c.Header("Cache-Control", "max-age=3600")
+		}
 	}
 
 	baseAPI := r.Group("/api")
@@ -74,7 +73,7 @@ func main() {
 	r.Use(headersHandler)
 
 	r.Use(static.Serve("/", static.LocalFile(exPath+"/dist", false)))
-	r.Any("", func(c *gin.Context) {
+	r.NoRoute(func(c *gin.Context) {
 		c.Header("Cache-Control", "no-cache")
 		c.File(exPath + "/dist/index.html")
 	})
