@@ -37,7 +37,7 @@ func main() {
 
 	headersHandler := func(c *gin.Context) {
 		if os.Getenv("GIN_MODE") == "release" {
-			c.Header("Content-Security-Policy", "frame-ancestors 'none'; default-src https:; object-src 'none'; img-src *; script-src 'self' cdn.auth0.com; style-src 'self' 'unsafe-inline'")
+			c.Header("Content-Security-Policy", "frame-ancestors 'none'; default-src https:; object-src 'none'; img-src * data:; script-src 'self' cdn.auth0.com; style-src 'self' 'unsafe-inline'")
 			c.Header("X-Frame-Options", "DENY")
 			c.Header("X-Content-Type-Options", "nosniff")
 			c.Header("X-XSS-Protection", "1; mode=block")
