@@ -5,4 +5,5 @@ type User struct {
 	UserID string `json:"userId" gorm:"not null;primary_key"`
 	Name   string `json:"name" gorm:"not null"`
 	Banned bool   `json:"banned" gorm:"not null"`
+	Admin  bool   `json:"admin" gorm:"not null; default:'false'"`
 }

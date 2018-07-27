@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -28,6 +29,8 @@ func Auth() gin.HandlerFunc {
 			dbUserInfo, err := findOrCreateUser(&models.User{
 				UserID: userInfo["sub"].(string),
 				Name:   userInfo["name"].(string),
+				Banned: false,
+				Admin:  strings.Contains(os.Getenv("ADMINS"), userInfo["sub"].(string)),
 			})
 			if err != nil {
 				c.AbortWithStatusJSON(500, gin.H{"error": err})

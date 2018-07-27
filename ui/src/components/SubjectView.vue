@@ -2,7 +2,7 @@
   <div class="clearfix">
     <div class="columns col-gapless">
       <!-- Navigation/Vote buttons for desktop -->
-      <div class="column col-1 col-lg-2 col-sm-3 text-center min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
+      <div class="column col-1 col-lg-2 col-sm-3 min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
         <div class="btn-group">
           <button class="btn btn-sm" @click="$router.push({name: 'home'})">
             <i class="icon icon-arrow-left"></i>
@@ -255,6 +255,21 @@ export default {
     },
 
     vote () {
+      if (!this.$store.state.subject.votes) {
+        this.$store.state.subject.votes = [];
+      }
+
+      const vote = {
+        id: -1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: null,
+        subjectId: this.subject.id,
+        voter: this.$store.state.me.userId,
+      };
+
+      this.$store.commit('patchSubjectVote', vote);
+
       this.voting = true;
       api
         .vote(this.subject.id)

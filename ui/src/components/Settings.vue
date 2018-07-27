@@ -12,6 +12,7 @@
         <i class="form-icon"></i> Automatically open edit history when I view a person
       </label>
     </div>
+    <button class="btn" v-if="$store.getters.isAdmin" @click="$router.push({name: 'users'})">Users</button>
   </div>
 </template>
 <script>

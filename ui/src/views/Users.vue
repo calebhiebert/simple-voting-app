@@ -34,6 +34,9 @@ import api from '@/api';
 export default {
   created () {
     this.loadUsers();
+    if (!this.$store.getters.isAdmin) {
+      this.$router.replace({ name: 'home' });
+    }
   },
 
   data () {

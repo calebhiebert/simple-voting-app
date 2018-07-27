@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"./models"
 	"./routes"
 
 	"github.com/gin-contrib/cors"
@@ -27,23 +28,8 @@ func main() {
 		AllowMethods:    []string{"PATCH", "DELETE"},
 		AllowHeaders: []string{
 			"Content-Type",
-			"Authorization",
-			"Content-Security-Policy",
-			"X-Frame-Options",
-			"X-Content-Type-Options",
-			"X-XSS-Protection",
-			"Strict-Transport-Security"},
+			"Authorization"},
 	}))
-
-	headersHandler := func(c *gin.Context) {
-		if os.Getenv("GIN_MODE") == "release" {
-			c.Header("Content-Security-Policy", "frame-ancestors 'none'; default-src https:; object-src 'none'; img-src * data:; script-src 'self' cdn.auth0.com; style-src 'self' 'unsafe-inline'")
-			c.Header("X-Frame-Options", "DENY")
-			c.Header("X-Content-Type-Options", "nosniff")
-			c.Header("X-XSS-Protection", "1; mode=block")
-			c.Header("Cache-Control", "max-age=3600")
-		}
-	}
 
 	baseAPI := r.Group("/api")
 
@@ -57,9 +43,6 @@ func main() {
 	private.Use(Auth())
 	private.Use(RequireAuth())
 	private.GET("/me", wrapHandler(routes.GetMe))
-	private.GET("/users", wrapHandler(routes.GetUsers))
-	private.POST("/users/:id/ban", wrapHandler(routes.SetUserBanStatus(true)))
-	private.POST("/users/:id/unban", wrapHandler(routes.SetUserBanStatus(false)))
 
 	banApplied := baseAPI.Group("")
 	banApplied.Use(Auth())
@@ -70,11 +53,29 @@ func main() {
 	banApplied.PATCH("/subjects/:id", wrapHandler(routes.PatchSubject))
 	banApplied.DELETE("/subjects/:id", wrapHandler(routes.DeleteSubject))
 
-	r.Use(headersHandler)
+	admin := baseAPI.Group("")
+	admin.Use(Auth())
+	admin.Use(RequireAuth())
+	admin.Use(func(c *gin.Context) {
+		userInfo, _ := c.Get("user-info")
+
+		if !userInfo.(*models.User).Admin {
+			c.AbortWithStatus(401)
+		} else {
+			c.Next()
+		}
+	})
+	admin.GET("/users", wrapHandler(routes.GetUsers))
+	admin.POST("/users/:id/ban", wrapHandler(routes.SetUserBanStatus(true)))
+	admin.POST("/users/:id/unban", wrapHandler(routes.SetUserBanStatus(false)))
+
+	r.Use(func(c *gin.Context) {
+		c.Header("Cache-Control", "max-age=3600")
+	})
 
 	r.Use(static.Serve("/", static.LocalFile(exPath+"/dist", false)))
 	r.NoRoute(func(c *gin.Context) {
-		c.Header("Cache-Control", "no-cache")
+		c.Header("Cache-Control", "max-age=300")
 		c.File(exPath + "/dist/index.html")
 	})
 

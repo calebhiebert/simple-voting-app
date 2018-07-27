@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import router from '@/router';
 
 Vue.use(Vuex);
 
@@ -87,7 +86,11 @@ export default new Vuex.Store({
 
   getters: {
     isAdmin (state) {
-      return router.currentRoute.query.admin === 'true';
+      if (state.me) {
+        return state.me.admin;
+      } else {
+        return false;
+      }
     },
     isBanned (state) {
       if (state.me) {
