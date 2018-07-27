@@ -6,7 +6,7 @@
     <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
       <div class="tile-icon">
         <figure class="avatar">
-          <img :src="getAvatarUrl(vote.voter)" alt="avatar">
+          <img :src="getAvatarUrl(vote.voter, 32)" alt="avatar">
         </figure>
       </div>
       <div class="tile-content">

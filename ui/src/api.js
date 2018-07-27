@@ -125,8 +125,8 @@ const vote = (subjectId) => {
     .catch(handleAxiosError);
 };
 
-const avatarURL = (name) => {
-  return `https://api.adorable.io/avatars/285/${name}.png`;
+const avatarURL = (name, size) => {
+  return `https://api.adorable.io/avatars/${size || 64}/${name}.png`;
 };
 
 export default {

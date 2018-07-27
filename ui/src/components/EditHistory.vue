@@ -3,7 +3,7 @@
     <div class="tile" v-for="(edit, index) of sortedHistory" :key="edit.id">
       <div class="tile-icon">
         <figure class="avatar">
-          <img :src="getAvatarUrl(edit.editor)" alt="avatar">
+          <img :src="getAvatarUrl(edit.editor, 32)" alt="avatar">
         </figure>
       </div>
       <div class="tile-content">

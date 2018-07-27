@@ -67,7 +67,7 @@ export default {
       return this.votePercent * 100 + '%';
     },
     avatarUrl () {
-      return api.avatarURL(this.name);
+      return api.avatarURL(this.name, 48);
     },
   },
 };
