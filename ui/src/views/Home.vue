@@ -16,7 +16,7 @@
     </div>
     <div class="divider"></div>
     <div class="columns" v-if="!$store.getters.isBanned">
-      <div class="column col-mx-auto text-center">
+      <div class="column col-12 col-mx-auto text-center">
         {{ lang.addNotice }} <router-link :to="{name: 'subject-create'}">{{ lang.addText }}</router-link>
       </div>
     </div>

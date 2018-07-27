@@ -15,6 +15,7 @@ export default new Vuex.Store({
       autoVoteOnClick: true,
       autoLogoutOnVote: false,
       editHistoryVisible: false,
+      showVotedNotification: true,
     },
   },
   mutations: {
@@ -27,7 +28,7 @@ export default new Vuex.Store({
 
       toastTimeout = setTimeout(() => {
         state.toast = '';
-      }, 2500);
+      }, 10000);
     },
 
     setSubject (state, subject) {

@@ -4,7 +4,7 @@
       <settings></settings>
     </modal>
     <transition name="fade-virt-rev">
-      <div class="p-2 absolute top" :class="{'wide': isMobile, 'right': !isMobile}" v-if="$store.state.toast !== ''">
+      <div class="p-2 absolute top" :class="{'wide': isMobile, 'right': !isMobile}" @click="$store.commit('toast', '')" v-if="$store.state.toast !== ''">
         <div class="toast toast-success">
           <button class="btn btn-clear float-right" @click="$store.commit('toast', '')"></button>
           <i class="icon icon-check"></i>

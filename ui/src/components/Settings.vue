@@ -12,6 +12,12 @@
         <i class="form-icon"></i> Automatically open edit history when I view a person
       </label>
     </div>
+    <div class="form-group">
+      <label class="form-switch">
+        <input type="checkbox" v-model="showVotedNotification">
+        <i class="form-icon"></i> Show a notification after my votes are submitted
+      </label>
+    </div>
     <button class="btn" v-if="$store.getters.isAdmin" @click="$router.push({name: 'users'})">Users</button>
   </div>
 </template>
@@ -32,6 +38,7 @@ export default {
   computed: {
     autoVoteOnClick: makeSettingGetSet('autoVoteOnClick'),
     editHistoryVisible: makeSettingGetSet('editHistoryVisible'),
+    showVotedNotification: makeSettingGetSet('showVotedNotification'),
   },
 };
 </script>

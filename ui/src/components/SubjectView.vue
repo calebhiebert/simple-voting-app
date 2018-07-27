@@ -162,7 +162,12 @@ export default {
     }
 
     if (this.$route.query.voted === true) {
-      this.$store.commit('toast', 'Your vote has been counted');
+      if (this.$store.state.settings.showVotedNotification) {
+        this.$store.commit(
+          'toast',
+          'Your vote has been counted. Visit the settings menu in the top left corner to turn off auto voting',
+        );
+      }
       this.$router.replace({ name: 'subject-view', params: { id: this.$route.params.id } });
     }
   },
