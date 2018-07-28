@@ -1,0 +1,24 @@
+{
+  "name": "graphql-server",
+  "version": "0.1.0",
+  "description": "A graphql alternative backend for the voting app",
+  "main": "index.js",
+  "author": "Caleb Hiebert",
+  "license": "AGPLv3",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js | pino",
+    "migrate": "node_modules/.bin/sequelize db:migrate --config src/db/config/config.json --migrations-path src/db/migrations"
+  },
+  "dependencies": {
+    "apollo-server": "^2.0.0",
+    "graphql": "^0.13.2",
+    "pg": "^7.4.3",
+    "pino": "^4.17.5",
+    "sequelize": "^4.38.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^4.0.0",
+    "sqlite3": "^4.0.2"
+  }
+}

@@ -1,0 +1,41 @@
+scalar Date
+
+type Query {
+  subjects: [Subject]!
+}
+
+type Subject {
+  id: ID!
+  personName: String!
+  costumeDescription: String!
+  votes: [Vote!]!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type SubjectHistory {
+  id: ID!
+  editor: User!
+  personName: String!
+  costumeDescription: String!
+  subject: Subject!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type User {
+  id: ID!
+  name: String!
+  banned: Boolean!
+  admin: Boolean!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type Vote {
+  id: ID!
+  voter: User!
+  subject: Subject!
+  createdAt: Date!
+  updatedAt: Date!
+}
