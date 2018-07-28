@@ -7,11 +7,15 @@
   "license": "AGPLv3",
   "private": true,
   "scripts": {
-    "start": "node src/index.js | pino",
+    "start": "node -r dotenv/config src/index.js | pino",
     "migrate": "node_modules/.bin/sequelize db:migrate --config src/db/config/config.json --migrations-path src/db/migrations"
   },
   "dependencies": {
     "apollo-server": "^2.0.0",
+    "apollo-server-express": "^2.0.0",
+    "auth0": "^2.11.0",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
     "graphql": "^0.13.2",
     "pg": "^7.4.3",
     "pino": "^4.17.5",

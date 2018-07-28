@@ -2,6 +2,12 @@ scalar Date
 
 type Query {
   subjects: [Subject]!
+  subject(id: ID!): Subject!
+}
+
+type Mutation {
+  createSubject(input: SubjectCreation!): Subject!
+  vote(subjectId: ID!): Vote!
 }
 
 type Subject {
@@ -9,6 +15,7 @@ type Subject {
   personName: String!
   costumeDescription: String!
   votes: [Vote!]!
+  history: [SubjectHistory!]!
   createdAt: Date!
   updatedAt: Date!
 }
@@ -38,4 +45,9 @@ type Vote {
   subject: Subject!
   createdAt: Date!
   updatedAt: Date!
+}
+
+input SubjectCreation {
+  personName: String!
+  costumeDescription: String!
 }
