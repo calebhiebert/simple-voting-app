@@ -47,7 +47,7 @@ export default {
     ApolloTest,
   },
 
-  created() {},
+  created () {},
 
   apollo: {
     subjects: gql`
@@ -70,12 +70,12 @@ export default {
     `,
   },
 
-  data() {
+  data () {
     return { lang };
   },
 
   computed: {
-    sortedSubjects() {
+    sortedSubjects () {
       if (this.subjects) {
         return this.subjects.slice(0).sort((a, b) => {
           if (a.voteCount > b.voteCount) {
@@ -91,7 +91,7 @@ export default {
       }
     },
 
-    totalVotes() {
+    totalVotes () {
       if (this.subjects) {
         let votes = 0;
 
@@ -109,7 +109,7 @@ export default {
   },
 
   methods: {
-    detailSubject(subject) {
+    detailSubject (subject) {
       this.$router.push({
         name: 'subject-view',
         params: { id: subject.id },

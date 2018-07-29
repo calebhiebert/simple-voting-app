@@ -34,11 +34,10 @@
   </div>
 </template>
 <script>
-import api from '@/api';
 import gql from 'graphql-tag';
 
 export default {
-  data() {
+  data () {
     return {
       banning: '',
     };
@@ -69,7 +68,7 @@ export default {
   },
 
   watch: {
-    user() {
+    user () {
       if (this.user && !this.user.admin) {
         this.$router.replace({ name: 'home' });
       }
@@ -77,13 +76,13 @@ export default {
   },
 
   methods: {
-    loadUsers() {
+    loadUsers () {
       // api.getUsers().then((users) => {
       //   this.users = users;
       // });
     },
 
-    ban(user) {
+    ban (user) {
       this.banning = user.userId;
       // api.banUser(user.userId).then(() => {
       //   this.banning = '';
@@ -91,7 +90,7 @@ export default {
       // });
     },
 
-    unban(user) {
+    unban (user) {
       this.banning = user.userId;
       // api.unBanUser(user.userId).then(() => {
       //   this.banning = '';

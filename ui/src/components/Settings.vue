@@ -26,11 +26,11 @@ import gql from 'graphql-tag';
 
 const makeSettingGetSet = (settingName) => {
   return {
-    get() {
+    get () {
       return this.$store.state.settings[settingName];
     },
 
-    set(value) {
+    set (value) {
       this.$store.commit('setting', { setting: settingName, value });
     },
   };
@@ -41,7 +41,7 @@ export default {
     autoVoteOnClick: makeSettingGetSet('autoVoteOnClick'),
     editHistoryVisible: makeSettingGetSet('editHistoryVisible'),
     showVotedNotification: makeSettingGetSet('showVotedNotification'),
-    isAdmin() {
+    isAdmin () {
       return this.user ? this.user.admin : false;
     },
   },

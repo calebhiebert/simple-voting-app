@@ -149,7 +149,7 @@ export default {
     Modal,
   },
 
-  mounted() {
+  mounted () {
     if (this.$route.query.voted === true) {
       if (this.$store.state.settings.showVotedNotification) {
         this.$store.commit(
@@ -164,7 +164,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       lang,
       editing: false,
@@ -187,7 +187,7 @@ export default {
       }
     `,
 
-    subject() {
+    subject () {
       return {
         query: gql`
           query GetSubject($id: ID!) {
@@ -199,13 +199,13 @@ export default {
           }
         `,
 
-        variables() {
+        variables () {
           return {
             id: this.$route.params.id,
           };
         },
 
-        error(err) {
+        error (err) {
           if (err.networkError) {
             console.log('NETWORK ERROR', err.networkError);
           } else if (err.gqlError) {
@@ -224,15 +224,15 @@ export default {
   },
 
   computed: {
-    avatarUrl() {
+    avatarUrl () {
       return api.avatarURL(this.subject.personName);
     },
 
-    isMobile() {
+    isMobile () {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
-    isVotedFor() {
+    isVotedFor () {
       if (this.votedFor && this.subject) {
         return this.votedFor.id === this.subject.id;
       } else {
@@ -240,36 +240,36 @@ export default {
       }
     },
 
-    isBanned() {
+    isBanned () {
       return this.user ? this.user.banned : false;
     },
 
-    isAdmin() {
+    isAdmin () {
       return this.user ? this.user.admin : false;
     },
 
     editHistoryVisible: {
-      get() {
+      get () {
         return this.$store.state.settings.editHistoryVisible;
       },
-      set(value) {
+      set (value) {
         this.$store.commit('setting', { setting: 'editHistoryVisible', value });
       },
     },
   },
 
   methods: {
-    edit() {
+    edit () {
       this.eName = this.subject.personName;
       this.eCostume = this.subject.costumeDescription;
       this.editing = true;
     },
 
-    toggleEditHistory() {
+    toggleEditHistory () {
       this.editHistoryVisible = !this.editHistoryVisible;
     },
 
-    update() {
+    update () {
       this.$validator.validate().then((valid) => {
         if (valid) {
           this.saving = true;
@@ -301,7 +301,7 @@ export default {
       });
     },
 
-    vote() {
+    vote () {
       this.voting = true;
       this.$apollo
         .mutate({
@@ -372,7 +372,7 @@ export default {
         });
     },
 
-    deleteSubject() {
+    deleteSubject () {
       api.deleteSubject(this.subject.id).then((subject) => {
         this.$router.replace({ name: 'home' });
       });
