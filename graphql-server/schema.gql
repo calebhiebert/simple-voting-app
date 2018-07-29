@@ -7,6 +7,7 @@ type Query {
 
 type Mutation {
   createSubject(input: SubjectCreation!): Subject!
+  updateSubject(input: SubjectMutation!): Subject!
   vote(subjectId: ID!): Vote!
 }
 
@@ -15,6 +16,7 @@ type Subject {
   personName: String!
   costumeDescription: String!
   votes: [Vote!]!
+  voteCount: Int!
   history: [SubjectHistory!]!
   createdAt: Date!
   updatedAt: Date!
@@ -48,6 +50,12 @@ type Vote {
 }
 
 input SubjectCreation {
+  personName: String!
+  costumeDescription: String!
+}
+
+input SubjectMutation {
+  id: ID!
   personName: String!
   costumeDescription: String!
 }

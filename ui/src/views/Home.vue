@@ -8,9 +8,9 @@
     </div>
     <div class="columns">
       <div class="column col-10 col-sm-11 col-mx-auto" v-if="sortedSubjects">
-        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.votes.length / totalVotes"></main-page-vote-view>
+        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
       </div>
-      <div class="column col-10 col-sm-11 col-mx-auto" v-else>
+      <div class="column col-10 col-sm-11 col-mx-auto" v-if="$apollo.queries.subjects.loading">
         <div class="loading loading-lg"></div>
       </div>
     </div>
@@ -30,13 +30,13 @@
 </style>
 
 <script>
-import api from '../api';
-
 // @ is an alias to /src
 import MainPageVoteView from '@/components/MainPageVoteView.vue';
 import Modal from '@/components/Modal.vue';
 import Settings from '@/components/Settings.vue';
+import ApolloTest from '@/components/ApolloTest.vue';
 import lang from '@/lang.json';
+import gql from 'graphql-tag';
 
 export default {
   name: 'home',
@@ -44,12 +44,22 @@ export default {
     MainPageVoteView,
     Modal,
     Settings,
+    ApolloTest,
   },
 
-  created () {
-    api.getSubjects().then((subjects) => {
-      this.$store.commit('setSubjects', subjects);
-    });
+  created () {},
+
+  apollo: {
+    subjects: gql`
+      query GetAllSubjects {
+        subjects {
+          id
+          personName
+          costumeDescription
+          voteCount
+        }
+      }
+    `,
   },
 
   data () {
@@ -57,10 +67,6 @@ export default {
   },
 
   computed: {
-    subjects () {
-      return this.$store.state.subjects;
-    },
-
     votedFor () {
       return this.$store.getters.votedFor;
     },
@@ -68,9 +74,9 @@ export default {
     sortedSubjects () {
       if (this.subjects) {
         return this.subjects.slice(0).sort((a, b) => {
-          if (a.votes.length > b.votes.length) {
+          if (a.voteCount > b.voteCount) {
             return -1;
-          } else if (a.votes.length < b.votes.length) {
+          } else if (a.voteCount < b.voteCount) {
             return 1;
           } else {
             return 0;
@@ -86,8 +92,8 @@ export default {
         let votes = 0;
 
         for (const subject of this.subjects) {
-          if (subject.votes) {
-            votes += subject.votes.length;
+          if (subject.voteCount) {
+            votes += subject.voteCount;
           }
         }
 
@@ -102,7 +108,10 @@ export default {
     detailSubject (subject) {
       this.$store.commit('setSubject', subject);
 
-      if (this.$store.state.settings.autoVoteOnClick && !this.$store.getters.isBanned) {
+      if (
+        this.$store.state.settings.autoVoteOnClick &&
+        !this.$store.getters.isBanned
+      ) {
         if (this.$store.getters.votedFor !== subject.id) {
           if (this.$store.state.subject.votes) {
             const vote = {
@@ -117,21 +126,26 @@ export default {
             this.$store.commit('patchSubjectVote', vote);
           }
 
-          api
-            .vote(subject.id)
-            .then((vote) => {
-              return api.getSubject(subject.id);
-            })
-            .then((subject) => {
-              this.$store.commit('setSubject', subject);
-            });
+          // TODO real voting
+          // api
+          //   .vote(subject.id)
+          //   .then((vote) => {
+          //     return api.getSubject(subject.id);
+          //   })
+          //   .then((subject) => {
+          //     this.$store.commit('setSubject', subject);
+          //   });
         }
       }
 
       this.$router.push({
         name: 'subject-view',
         params: { id: subject.id },
-        query: { voted: this.$store.state.settings.autoVoteOnClick && !this.$store.getters.isBanned },
+        query: {
+          voted:
+            this.$store.state.settings.autoVoteOnClick &&
+            !this.$store.getters.isBanned,
+        },
       });
     },
   },

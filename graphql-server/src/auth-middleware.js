@@ -1,5 +1,10 @@
 const AuthenticationClient = require('auth0').AuthenticationClient;
+const pino = require('pino');
 const db = require('./db');
+
+const logger = pino({ name: 'auth-mw' });
+
+const cache = {};
 
 //Instantiate an auth0 authentication client
 const auth0 = new AuthenticationClient({
@@ -13,20 +18,35 @@ exports.default = async function(req, res, next) {
 
   if (authorization) {
     const bearerToken = authorization.substring('Bearer '.length).trim();
-    userData = await auth0.getProfile(bearerToken);
 
-    const dbUser = await db.user.findOrCreate({
-      where: { id: { [db.Op.eq]: userData.sub } },
-      defaults: {
-        id: userData.sub,
-        name: userData.name,
-        admin: false,
-        banned: false,
-      },
-    });
+    if (cache[bearerToken]) {
+      req.user = cache[bearerToken];
+      next();
+    } else {
+      try {
+        userData = await auth0.getProfile(bearerToken);
 
-    req.user = dbUser[0].dataValues;
-    next();
+        const dbUser = await db.user.findOrCreate({
+          where: { id: { [db.Op.eq]: userData.sub } },
+          defaults: {
+            id: userData.sub,
+            name: userData.name,
+            admin: false,
+            banned: false,
+          },
+        });
+
+        req.user = dbUser[0].dataValues;
+        cache[bearerToken] = req.user;
+        next();
+      } catch (err) {
+        logger.warn('Auth', { name: err.name, message: err.message });
+        res.status(403).json({
+          name: 'AuthenticationError',
+          message: 'Failed to authenticate',
+        });
+      }
+    }
   } else {
     next();
   }

@@ -2,7 +2,7 @@
 <div class="container">
   <div class="columns">
     <div class="column col-10 col-sm-12 col-mx-auto">
-      <subject-view :subject="subject" v-if="subject"></subject-view>
+      <subject-view></subject-view>
     </div>
   </div>
 </div>
@@ -21,20 +21,6 @@ import api from '@/api';
 export default {
   components: {
     SubjectView,
-  },
-
-  created () {
-    if (this.subject === null) {
-      api.getSubject(this.$route.params.id).then((subject) => {
-        this.$store.commit('setSubject', subject);
-      });
-    }
-  },
-
-  computed: {
-    subject () {
-      return this.$store.state.subject;
-    },
   },
 };
 </script>

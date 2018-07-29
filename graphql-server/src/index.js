@@ -1,8 +1,9 @@
-const { ApolloServer, gql } = require('apollo-server-express');
+const { ApolloServer, gql, PubSub } = require('apollo-server-express');
 const pino = require('pino');
 const express = require('express');
 const localResolvers = require('./resolvers');
 const authMiddleware = require('./auth-middleware').default;
+const cors = require('cors');
 const schema = gql`
   ${require('fs').readFileSync(
     require('path').join(__dirname, '..', 'schema.gql'),
@@ -13,6 +14,13 @@ const app = express();
 const port = process.env.PORT || 4000;
 const logger = pino({ level: 'debug', name: 'index' });
 
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
+  }),
+);
 app.use(authMiddleware);
 
 const resolvers = {
@@ -22,11 +30,13 @@ const resolvers = {
   },
   Mutation: {
     createSubject: localResolvers.createSubjectResolver,
+    updateSubject: localResolvers.updateSubjectResolver,
     vote: localResolvers.doVoteResolver,
   },
   Subject: {
     votes: localResolvers.subjectVoteResolver,
     history: localResolvers.subjectHistoryResolver,
+    voteCount: localResolvers.subjectVoteCountResolver,
   },
   Vote: {
     voter: localResolvers.genericUserResolver('root', 'voter'),
@@ -34,6 +44,7 @@ const resolvers = {
   },
   SubjectHistory: {
     subject: localResolvers.genericSubjectResolver('subjectId'),
+    editor: localResolvers.genericUserResolver('root', 'editor'),
   },
 };
 

@@ -5,7 +5,9 @@ const vote = require('./vote');
 
 module.exports = {
   subjectResolver: subject.getSubject,
-  subjectsResolver: subjects,
+  subjectsResolver: subjects.getAllSubjectsResolver,
+  subjectVoteCountResolver: subject.voteCountResolver,
+  updateSubjectResolver: subject.updateSubject,
   createSubjectResolver: subject.createSubject,
   subjectVoteResolver: subject.voteResolver,
   subjectHistoryResolver: subject.historyResolver,

@@ -1,5 +1,5 @@
 <template>
-  <div class="clearfix">
+  <div class="clearfix" v-if="subject">
     <div class="columns col-gapless">
       <!-- Navigation/Vote buttons for desktop -->
       <div class="column col-1 col-lg-2 col-sm-3 min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
@@ -62,9 +62,9 @@
     <div class="columns">
 
       <!-- Votes view -->
-      <div class="column col-6 col-sm-10 col-mx-auto edit-history" v-if="subject.votes">
-        <h4 class="badge" :data-badge="subject.votes.length">Votes</h4>
-        <votes :votes="subject.votes"></votes>
+      <div class="column col-6 col-sm-10 col-mx-auto edit-history">
+        <h4 class="badge" :data-badge="subject.voteCount">Votes</h4>
+        <votes :subject-id="subject.id"></votes>
       </div>
 
       <!-- Edit History View -->
@@ -74,7 +74,7 @@
         </button>
         <h4>Edit History</h4>
         <transition name="fade-virt-rev">
-          <edit-history :history="subject.history" v-if="subject && editHistoryVisible"></edit-history>
+          <edit-history :subject-id="subject.id" v-if="subject && editHistoryVisible"></edit-history>
         </transition>
       </div>
     </div>
@@ -136,6 +136,7 @@ h1 {
 <script>
 import api from '@/api';
 import lang from '@/lang.json';
+import gql from 'graphql-tag';
 
 import EditHistory from '@/components/EditHistory.vue';
 import Votes from '@/components/Votes.vue';
@@ -148,19 +149,7 @@ export default {
     Modal,
   },
 
-  props: {
-    subject: {
-      type: Object,
-      required: true,
-      default: null,
-    },
-  },
-
   mounted () {
-    if (this.subject.history === null) {
-      this.refresh();
-    }
-
     if (this.$route.query.voted === true) {
       if (this.$store.state.settings.showVotedNotification) {
         this.$store.commit(
@@ -168,7 +157,10 @@ export default {
           'Your vote has been counted. Visit the settings menu in the top left corner to turn off auto voting',
         );
       }
-      this.$router.replace({ name: 'subject-view', params: { id: this.$route.params.id } });
+      this.$router.replace({
+        name: 'subject-view',
+        params: { id: this.$route.params.id },
+      });
     }
   },
 
@@ -183,11 +175,25 @@ export default {
     };
   },
 
-  watch: {
+  apollo: {
     subject () {
-      if (this.subject.history === null) {
-        this.refresh();
-      }
+      return {
+        query: gql`
+          query GetSubject($id: ID!) {
+            subject(id: $id) {
+              id
+              personName
+              costumeDescription
+            }
+          }
+        `,
+
+        variables () {
+          return {
+            id: this.$route.params.id,
+          };
+        },
+      };
     },
   },
 
@@ -229,29 +235,31 @@ export default {
       this.editHistoryVisible = !this.editHistoryVisible;
     },
 
-    refresh () {
-      api.getSubject(this.subject.id).then((subject) => {
-        this.$store.commit('setSubject', { history: subject.history });
-      });
-    },
-
     update () {
       this.$validator.validate().then((valid) => {
         if (valid) {
           this.saving = true;
-          api
-            .updateSubject(this.subject.id, this.eName, this.eCostume)
-            .then((subject) => {
-              return api.getSubject(subject.id).then((subject) => {
-                this.$store.commit('setSubject', subject);
-                return subject;
-              });
+          this.$apollo
+            .mutate({
+              mutation: gql`
+                mutation UpdateSubject($subject: SubjectMutation!) {
+                  updateSubject(input: $subject) {
+                    id
+                    personName
+                    costumeDescription
+                  }
+                }
+              `,
+              variables: {
+                subject: {
+                  id: this.subject.id,
+                  personName: this.eName,
+                  costumeDescription: this.eCostume,
+                },
+              },
             })
-            .then((subject) => {
-              this.editing = false;
-              this.saving = false;
-            })
-            .catch(() => {
+            .then((result) => {
+              console.log(result);
               this.saving = false;
               this.editing = false;
             });
@@ -260,29 +268,31 @@ export default {
     },
 
     vote () {
-      if (!this.$store.state.subject.votes) {
-        this.$store.state.subject.votes = [];
-      }
-
-      const vote = {
-        id: -1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        deletedAt: null,
-        subjectId: this.subject.id,
-        voter: this.$store.state.me.userId,
-      };
-
-      this.$store.commit('patchSubjectVote', vote);
-
       this.voting = true;
-      api
-        .vote(this.subject.id)
-        .then((vote) => {
-          return api.getSubject(this.subject.id).then((subject) => {
-            this.$store.commit('setSubject', subject);
-            return vote;
-          });
+      this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation DoVote($subjectId: ID!) {
+              vote(subjectId: $subjectId) {
+                id
+                updatedAt
+                voter {
+                  id
+                  name
+                }
+                subject {
+                  id
+                  votes {
+                    id
+                  }
+                }
+              }
+            }
+          `,
+
+          variables: {
+            subjectId: this.subject.id,
+          },
         })
         .then((vote) => {
           this.voting = false;
@@ -291,6 +301,22 @@ export default {
           this.voting = false;
           console.error(err);
         });
+
+      // api
+      //   .vote(this.subject.id)
+      //   .then((vote) => {
+      //     return api.getSubject(this.subject.id).then((subject) => {
+      //       this.$store.commit('setSubject', subject);
+      //       return vote;
+      //     });
+      //   })
+      //   .then((vote) => {
+      //     this.voting = false;
+      //   })
+      //   .catch((err) => {
+      //     this.voting = false;
+      //     console.error(err);
+      //   });
     },
 
     deleteSubject () {

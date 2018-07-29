@@ -3,19 +3,16 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import VueMq from 'vue-mq';
-import api from './api';
 import VeeValidate from 'vee-validate';
+import { createProvider } from './vue-apollo';
 
 import 'spectre.css/dist/spectre.min.css';
 import 'spectre.css/dist/spectre-icons.min.css';
 
-api.getMe().then((me) => {
-  store.commit('setMe', me);
-});
-
 store.dispatch('loadSettings');
 
 Vue.config.productionTip = false;
+Vue.config.devtools = true;
 
 Vue.use(VueMq, {
   breakpoints: {
@@ -29,8 +26,14 @@ Vue.use(VueMq, {
 
 Vue.use(VeeValidate, { events: '' });
 
+const apolloProvider = createProvider({
+  wsEndpoint: null,
+  connectToDevTools: true,
+});
+
 new Vue({
   router,
   store,
+  provide: apolloProvider.provide(),
   render: (h) => h(App),
 }).$mount('#app');

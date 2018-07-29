@@ -1,18 +1,21 @@
 <template>
-  <div>
+  <div v-if="votes !== null">
     <div v-if="votes.length === 0">
       <p>No votes here :(</p>
     </div>
     <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
       <div class="tile-icon">
         <figure class="avatar">
-          <img :src="getAvatarUrl(vote.voter, 32)" alt="avatar">
+          <img :src="getAvatarUrl(vote.voter.name, 32)" alt="avatar">
         </figure>
       </div>
       <div class="tile-content">
-        <p class="tile-title"><user-name :userId="vote.voter"></user-name> - <i>{{ distanceInWordsToNow(vote.updatedAt) }} ago</i></p>
+        <p class="tile-title">{{ vote.voter.name }} - <i>{{ distanceInWordsToNow(vote.updatedAt) }} ago</i></p>
       </div>
     </div>
+  </div>
+  <div class="loading loading-lg" v-else-if="$apollo.loading">
+
   </div>
 </template>
 
@@ -31,6 +34,7 @@ import UserName from '@/components/UserName.vue';
 
 import api from '@/api';
 import { distanceInWordsToNow } from 'date-fns';
+import gql from 'graphql-tag';
 
 export default {
   components: {
@@ -38,8 +42,8 @@ export default {
   },
 
   props: {
-    votes: {
-      type: Array,
+    subjectId: {
+      type: String,
       required: true,
     },
   },
@@ -51,7 +55,42 @@ export default {
     },
   },
 
+  apollo: {
+    subject () {
+      return {
+        query: gql`
+          query GetSubject($id: ID!) {
+            subject(id: $id) {
+              id
+              votes {
+                id
+                updatedAt
+                voter {
+                  id
+                  name
+                }
+              }
+            }
+          }
+        `,
+
+        variables () {
+          return {
+            id: this.subjectId,
+          };
+        },
+      };
+    },
+  },
+
   computed: {
+    votes () {
+      if (this.subject) {
+        return this.subject.votes;
+      } else {
+        return null;
+      }
+    },
     sortedVotes () {
       if (this.votes) {
         return this.votes.slice(0).sort((a, b) => {

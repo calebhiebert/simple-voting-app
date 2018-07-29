@@ -3,11 +3,11 @@
     <div class="tile" v-for="(edit, index) of sortedHistory" :key="edit.id">
       <div class="tile-icon">
         <figure class="avatar">
-          <img :src="getAvatarUrl(edit.editor, 32)" alt="avatar">
+          <img :src="getAvatarUrl(edit.editor.name, 32)" alt="avatar">
         </figure>
       </div>
       <div class="tile-content">
-        <p class="tile-title"><user-name :userId="edit.editor"></user-name><i v-if="index === history.length - 1"> (Original)</i></p>
+        <p class="tile-title"> {{ edit.editor.name }} <i v-if="index === history.length - 1"> (Original)</i></p>
         <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
       </div>
       <button class="btn btn-sm float-right" :class="{'loading': reverting}" v-if="$store.getters.isAdmin" @click="revert(edit)">
@@ -16,7 +16,7 @@
     </div>
 
   </div>
-  <div class="loading loading-lg" v-else></div>
+  <div class="loading loading-lg" v-else-if="$apollo.loading"></div>
 </template>
 
 <style scoped>
@@ -30,19 +30,15 @@ p {
 </style>
 
 <script>
-import UserName from '@/components/UserName.vue';
-
-import api from '@/api';
 import { distanceInWordsToNow } from 'date-fns';
+import api from '@/api';
+import gql from 'graphql-tag';
 
 export default {
-  components: {
-    UserName,
-  },
-
   props: {
-    history: {
-      type: Array,
+    subjectId: {
+      type: String,
+      required: true,
     },
   },
 
@@ -50,6 +46,36 @@ export default {
     return {
       reverting: false,
     };
+  },
+
+  apollo: {
+    subject () {
+      return {
+        query: gql`
+          query GetSubject($id: ID!) {
+            subject(id: $id) {
+              id
+              history {
+                id
+                createdAt
+                personName
+                costumeDescription
+                editor {
+                  id
+                  name
+                }
+              }
+            }
+          }
+        `,
+
+        variables () {
+          return {
+            id: this.subjectId,
+          };
+        },
+      };
+    },
   },
 
   methods: {
@@ -60,14 +86,27 @@ export default {
 
     revert (history) {
       this.reverting = true;
-      api.updateSubject(history.subjectId, history.personName, history.costumeDescription).then((subject) => {
-        this.reverting = false;
-        this.$store.commit('setSubject', subject);
-      });
+      api
+        .updateSubject(
+          history.subjectId,
+          history.personName,
+          history.costumeDescription,
+        )
+        .then((subject) => {
+          this.reverting = false;
+          this.$store.commit('setSubject', subject);
+        });
     },
   },
 
   computed: {
+    history () {
+      if (this.subject) {
+        return this.subject.history;
+      } else {
+        return null;
+      }
+    },
     sortedHistory () {
       if (this.history) {
         return this.history.slice(0).sort((a, b) => {

@@ -38,6 +38,7 @@ button {
 
 <script>
 import api from '@/api';
+import gql from 'graphql-tag';
 export default {
   data () {
     return {
@@ -54,13 +55,31 @@ export default {
       this.$validator.validate().then((valid) => {
         if (valid) {
           this.saving = true;
-          api
-            .createSubject(this.personName, this.costumeDescription)
-            .then((result) => {
-              return api.getSubjects().then((subjects) => {
-                this.$store.commit('setSubjects', subjects);
-                return result;
-              });
+          this.$apollo
+            .mutate({
+              mutation: gql`
+                mutation CreateSubject($subject: SubjectCreation!) {
+                  createSubject(input: $subject) {
+                    id
+                    personName
+                    costumeDescription
+                    history {
+                      id
+                      createdAt
+                      editor {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              `,
+              variables: {
+                subject: {
+                  personName: this.personName,
+                  costumeDescription: this.costumeDescription,
+                },
+              },
             })
             .then((result) => {
               this.$router.replace({ name: 'home' });
