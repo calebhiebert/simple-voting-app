@@ -18,17 +18,19 @@
         <i class="form-icon"></i> Show a notification after my votes are submitted
       </label>
     </div>
-    <button class="btn" v-if="$store.getters.isAdmin" @click="$router.push({name: 'users'})">Users</button>
+    <button class="btn" v-if="isAdmin" @click="$router.push({name: 'users'})">Users</button>
   </div>
 </template>
 <script>
+import gql from 'graphql-tag';
+
 const makeSettingGetSet = (settingName) => {
   return {
-    get () {
+    get() {
       return this.$store.state.settings[settingName];
     },
 
-    set (value) {
+    set(value) {
       this.$store.commit('setting', { setting: settingName, value });
     },
   };
@@ -39,6 +41,22 @@ export default {
     autoVoteOnClick: makeSettingGetSet('autoVoteOnClick'),
     editHistoryVisible: makeSettingGetSet('editHistoryVisible'),
     showVotedNotification: makeSettingGetSet('showVotedNotification'),
+    isAdmin() {
+      return this.user ? this.user.admin : false;
+    },
+  },
+
+  apollo: {
+    user: gql`
+      query GetMe {
+        user {
+          id
+          name
+          banned
+          admin
+        }
+      }
+    `,
   },
 };
 </script>

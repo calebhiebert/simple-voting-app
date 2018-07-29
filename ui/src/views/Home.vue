@@ -7,8 +7,8 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column col-10 col-sm-11 col-mx-auto" v-if="sortedSubjects">
-        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
+      <div class="column col-10 col-sm-11 col-mx-auto" v-if="!$apollo.loading">
+        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor.id" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
       </div>
       <div class="column col-10 col-sm-11 col-mx-auto" v-if="$apollo.queries.subjects.loading">
         <div class="loading loading-lg"></div>
@@ -47,7 +47,7 @@ export default {
     ApolloTest,
   },
 
-  created () {},
+  created() {},
 
   apollo: {
     subjects: gql`
@@ -60,18 +60,22 @@ export default {
         }
       }
     `,
+
+    votedFor: gql`
+      query VotedFor {
+        votedFor {
+          id
+        }
+      }
+    `,
   },
 
-  data () {
+  data() {
     return { lang };
   },
 
   computed: {
-    votedFor () {
-      return this.$store.getters.votedFor;
-    },
-
-    sortedSubjects () {
+    sortedSubjects() {
       if (this.subjects) {
         return this.subjects.slice(0).sort((a, b) => {
           if (a.voteCount > b.voteCount) {
@@ -87,7 +91,7 @@ export default {
       }
     },
 
-    totalVotes () {
+    totalVotes() {
       if (this.subjects) {
         let votes = 0;
 
@@ -105,44 +109,12 @@ export default {
   },
 
   methods: {
-    detailSubject (subject) {
-      this.$store.commit('setSubject', subject);
-
-      if (
-        this.$store.state.settings.autoVoteOnClick &&
-        !this.$store.getters.isBanned
-      ) {
-        if (this.$store.getters.votedFor !== subject.id) {
-          if (this.$store.state.subject.votes) {
-            const vote = {
-              id: -1,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              deletedAt: null,
-              subjectId: subject.id,
-              voter: this.$store.state.me.userId,
-            };
-
-            this.$store.commit('patchSubjectVote', vote);
-          }
-
-          // TODO real voting
-          // api
-          //   .vote(subject.id)
-          //   .then((vote) => {
-          //     return api.getSubject(subject.id);
-          //   })
-          //   .then((subject) => {
-          //     this.$store.commit('setSubject', subject);
-          //   });
-        }
-      }
-
+    detailSubject(subject) {
       this.$router.push({
         name: 'subject-view',
         params: { id: subject.id },
         query: {
-          voted:
+          doVote:
             this.$store.state.settings.autoVoteOnClick &&
             !this.$store.getters.isBanned,
         },

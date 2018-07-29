@@ -2,13 +2,13 @@
   <div class="clearfix" v-if="subject">
     <div class="columns col-gapless">
       <!-- Navigation/Vote buttons for desktop -->
-      <div class="column col-1 col-lg-2 col-sm-3 min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
+      <div class="column col-1 col-lg-2 col-sm-3 min-90" :class="{'voted-for': isVotedFor}" v-if="!isMobile">
         <div class="btn-group">
           <button class="btn btn-sm" @click="$router.push({name: 'home'})">
             <i class="icon icon-arrow-left"></i>
           </button>
-          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote" v-if="!votedFor && !$store.getters.isBanned">Vote</button>
-          <button class="btn btn-sm btn-success" v-else-if="!$store.getters.isBanned">
+          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote" v-if="!isVotedFor && !isBanned">Vote</button>
+          <button class="btn btn-sm btn-success" v-else-if="!isBanned">
             <i class="icon icon-check"></i> Voted
           </button>
         </div>
@@ -52,8 +52,8 @@
         <button class="btn" @click="$router.push({name: 'home'})">
           <i class="icon icon-arrow-left"></i>
         </button>
-        <button class="btn btn-primary" v-if="!votedFor && !$store.getters.isBanned" :class="{'loading': voting}" @click="vote">Vote</button>
-        <button class="btn btn-success" v-else-if="!$store.getters.isBanned">
+        <button class="btn btn-primary" v-if="!isVotedFor && !isBanned" :class="{'loading': voting}" @click="vote">Vote</button>
+        <button class="btn btn-success" v-else-if="!isBanned">
           <i class="icon icon-check"></i> Voted
         </button>
       </div>
@@ -79,8 +79,8 @@
       </div>
     </div>
     <div class="divider"></div>
-    <p class="text-center" v-if="!$store.getters.isBanned">{{ lang.editNotice }} <a @click="edit">{{ lang.editText }}</a></p>
-    <p class="text-center" v-if="$store.getters.isAdmin"><a @click="deleteSubject">delete</a></p>
+    <p class="text-center" v-if="!isBanned">{{ lang.editNotice }} <a @click="edit">{{ lang.editText }}</a></p>
+    <p class="text-center" v-if="isAdmin"><a @click="deleteSubject">delete</a></p>
   </div>
 </template>
 
@@ -149,7 +149,7 @@ export default {
     Modal,
   },
 
-  mounted () {
+  mounted() {
     if (this.$route.query.voted === true) {
       if (this.$store.state.settings.showVotedNotification) {
         this.$store.commit(
@@ -164,7 +164,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       lang,
       editing: false,
@@ -176,7 +176,18 @@ export default {
   },
 
   apollo: {
-    subject () {
+    user: gql`
+      query GetMe {
+        user {
+          id
+          name
+          admin
+          banned
+        }
+      }
+    `,
+
+    subject() {
       return {
         query: gql`
           query GetSubject($id: ID!) {
@@ -188,54 +199,77 @@ export default {
           }
         `,
 
-        variables () {
+        variables() {
           return {
             id: this.$route.params.id,
           };
         },
+
+        error(err) {
+          if (err.networkError) {
+            console.log('NETWORK ERROR', err.networkError);
+          } else if (err.gqlError) {
+            this.$router.replace({ name: 'home' });
+          }
+        },
       };
     },
+    votedFor: gql`
+      query VotedFor {
+        votedFor {
+          id
+        }
+      }
+    `,
   },
 
   computed: {
-    avatarUrl () {
+    avatarUrl() {
       return api.avatarURL(this.subject.personName);
     },
 
-    isMobile () {
+    isMobile() {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
-    votedFor () {
-      if (this.$store.getters.votedFor) {
-        return this.subject.id === this.$store.getters.votedFor;
+    isVotedFor() {
+      if (this.votedFor && this.subject) {
+        return this.votedFor.id === this.subject.id;
       } else {
         return false;
       }
     },
 
+    isBanned() {
+      return this.user ? this.user.banned : false;
+    },
+
+    isAdmin() {
+      return this.user ? this.user.admin : false;
+    },
+
     editHistoryVisible: {
-      get () {
+      get() {
         return this.$store.state.settings.editHistoryVisible;
       },
-      set (value) {
+      set(value) {
         this.$store.commit('setting', { setting: 'editHistoryVisible', value });
       },
     },
   },
 
   methods: {
-    edit () {
+    edit() {
       this.eName = this.subject.personName;
       this.eCostume = this.subject.costumeDescription;
       this.editing = true;
     },
 
-    toggleEditHistory () {
+    toggleEditHistory() {
       this.editHistoryVisible = !this.editHistoryVisible;
     },
 
-    update () {
+    update() {
       this.$validator.validate().then((valid) => {
         if (valid) {
           this.saving = true;
@@ -267,7 +301,7 @@ export default {
       });
     },
 
-    vote () {
+    vote() {
       this.voting = true;
       this.$apollo
         .mutate({
@@ -293,6 +327,41 @@ export default {
           variables: {
             subjectId: this.subject.id,
           },
+
+          update: (store, { data: { vote } }) => {
+            const q = gql`
+              query VotedFor {
+                votedFor {
+                  id
+                }
+              }
+            `;
+
+            const subjectsQuery = gql`
+              query Subjects {
+                subjects {
+                  id
+                  voteCount
+                  votes {
+                    id
+                  }
+                }
+              }
+            `;
+
+            this.$apollo.query({
+              query: subjectsQuery,
+              fetchPolicy: 'network-only',
+            });
+
+            try {
+              const data = store.readQuery({ query: q });
+              data.votedFor.id = vote.subject.id;
+              store.writeQuery({ query: q, data });
+            } catch (err) {
+              this.$apollo.query({ query: q });
+            }
+          },
         })
         .then((vote) => {
           this.voting = false;
@@ -301,25 +370,9 @@ export default {
           this.voting = false;
           console.error(err);
         });
-
-      // api
-      //   .vote(this.subject.id)
-      //   .then((vote) => {
-      //     return api.getSubject(this.subject.id).then((subject) => {
-      //       this.$store.commit('setSubject', subject);
-      //       return vote;
-      //     });
-      //   })
-      //   .then((vote) => {
-      //     this.voting = false;
-      //   })
-      //   .catch((err) => {
-      //     this.voting = false;
-      //     console.error(err);
-      //   });
     },
 
-    deleteSubject () {
+    deleteSubject() {
       api.deleteSubject(this.subject.id).then((subject) => {
         this.$router.replace({ name: 'home' });
       });

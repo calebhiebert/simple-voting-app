@@ -14,4 +14,7 @@ module.exports = {
   genericSubjectResolver: subject.genericSubjectResolver,
   genericUserResolver: user.genericGetUser,
   doVoteResolver: vote.doVoteResolver,
+  votedForResolver: vote.votedFor,
+  currentUserResolver: user.getCurrentUser,
+  allUsersResolver: user.getUsers,
 };

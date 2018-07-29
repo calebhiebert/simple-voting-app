@@ -1,6 +1,27 @@
 const db = require('../db');
 const { MustBeAuthenticatedError } = require('../errors/errors');
 
+module.exports.votedFor = async (root, args, context, info) => {
+  if (!context.user) {
+    throw new MustBeAuthenticatedError();
+  }
+
+  const existingVote = await db.vote.findOne({
+    where: {
+      voter: { [db.Op.eq]: context.user.id },
+    },
+
+    include: [
+      {
+        model: db.subject,
+        as: 'subject',
+      },
+    ],
+  });
+
+  return existingVote.subject;
+};
+
 module.exports.doVoteResolver = async (root, args, context, info) => {
   if (!context.user) {
     throw new MustBeAuthenticatedError();

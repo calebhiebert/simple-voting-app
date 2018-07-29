@@ -21,6 +21,10 @@ module.exports.getSubject = async (root, args, context, info) => {
     },
   });
 
+  if (subject === null) {
+    throw new NotFoundError();
+  }
+
   return subject;
 };
 

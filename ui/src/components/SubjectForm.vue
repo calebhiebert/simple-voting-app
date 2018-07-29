@@ -39,8 +39,20 @@ button {
 <script>
 import api from '@/api';
 import gql from 'graphql-tag';
+
+const SUBJECTS_QUERY = gql`
+  query GetSubjects {
+    subjects {
+      id
+      personName
+      costumeDescription
+      voteCount
+    }
+  }
+`;
+
 export default {
-  data () {
+  data() {
     return {
       personName: '',
       costumeDescription: '',
@@ -49,7 +61,7 @@ export default {
   },
 
   methods: {
-    submit (event) {
+    submit(event) {
       event.preventDefault();
 
       this.$validator.validate().then((valid) => {
@@ -63,6 +75,7 @@ export default {
                     id
                     personName
                     costumeDescription
+                    voteCount
                     history {
                       id
                       createdAt
@@ -79,6 +92,13 @@ export default {
                   personName: this.personName,
                   costumeDescription: this.costumeDescription,
                 },
+              },
+              update: (store, { data: { createSubject } }) => {
+                const data = store.readQuery({ query: SUBJECTS_QUERY });
+
+                data.subjects.push(createSubject);
+
+                store.writeQuery({ query: SUBJECTS_QUERY, data });
               },
             })
             .then((result) => {

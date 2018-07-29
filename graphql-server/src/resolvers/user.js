@@ -19,3 +19,13 @@ module.exports.genericGetUser = (rootOrArgs, key) => {
     return user;
   };
 };
+
+module.exports.getCurrentUser = (root, args, context, info) => {
+  return context.user;
+};
+
+module.exports.getUsers = async (root, args, context, info) => {
+  const users = await db.user.findAll();
+
+  return users;
+};

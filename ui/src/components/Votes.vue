@@ -50,13 +50,13 @@ export default {
 
   methods: {
     distanceInWordsToNow,
-    getAvatarUrl (name) {
+    getAvatarUrl(name) {
       return api.avatarURL(name);
     },
   },
 
   apollo: {
-    subject () {
+    subject() {
       return {
         query: gql`
           query GetSubject($id: ID!) {
@@ -74,7 +74,7 @@ export default {
           }
         `,
 
-        variables () {
+        variables() {
           return {
             id: this.subjectId,
           };
@@ -84,14 +84,14 @@ export default {
   },
 
   computed: {
-    votes () {
+    votes() {
       if (this.subject) {
         return this.subject.votes;
       } else {
         return null;
       }
     },
-    sortedVotes () {
+    sortedVotes() {
       if (this.votes) {
         return this.votes.slice(0).sort((a, b) => {
           if (a.updatedAt > b.updatedAt) {

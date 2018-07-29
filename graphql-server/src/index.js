@@ -27,6 +27,9 @@ const resolvers = {
   Query: {
     subjects: localResolvers.subjectsResolver,
     subject: localResolvers.subjectResolver,
+    votedFor: localResolvers.votedForResolver,
+    user: localResolvers.currentUserResolver,
+    users: localResolvers.allUsersResolver,
   },
   Mutation: {
     createSubject: localResolvers.createSubjectResolver,

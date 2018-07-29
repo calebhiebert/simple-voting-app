@@ -3,6 +3,9 @@ scalar Date
 type Query {
   subjects: [Subject]!
   subject(id: ID!): Subject!
+  votedFor: Subject
+  user: User
+  users: [User!]!
 }
 
 type Mutation {
