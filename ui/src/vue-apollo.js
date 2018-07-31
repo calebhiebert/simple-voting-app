@@ -72,6 +72,7 @@ export function createProvider (options = {}) {
         error.name,
         error.graphQLErrors,
       );
+      console.trace();
     },
   });
 

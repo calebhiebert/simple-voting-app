@@ -1,5 +1,21 @@
 version: '3'
 services:
+  backend:
+    image: panchem/node-runner
+    container_name: backend
+    command: bash -c "cd graphql-server && yarn --silent && yarn migrate && nodemon -q --exec yarn start"
+    ports:
+      - "4000:4000"
+    volumes:
+      - "$PWD:/app/"
+  frontend:
+    image: panchem/node-runner
+    container_name: frontend
+    command: bash -c "cd ui && yarn --silent && yarn serve"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "$PWD:/app/"
   postgres:
     image: postgres:alpine
     ports:

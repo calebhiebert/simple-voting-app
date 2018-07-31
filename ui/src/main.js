@@ -27,7 +27,6 @@ Vue.use(VueMq, {
 Vue.use(VeeValidate, { events: '' });
 
 const apolloProvider = createProvider({
-  wsEndpoint: null,
   connectToDevTools: true,
 });
 

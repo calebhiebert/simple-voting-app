@@ -8,7 +8,9 @@
     </div>
     <div class="columns">
       <div class="column col-10 col-sm-11 col-mx-auto" v-if="!$apollo.loading && sortedSubjects">
-        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
+        <transition-group name="list-change">
+          <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
+        </transition-group>
       </div>
       <div class="column col-10 col-sm-11 col-mx-auto" v-if="$apollo.queries.subjects.loading">
         <div class="loading loading-lg"></div>
@@ -26,6 +28,10 @@
 <style scoped>
 .mt-4 {
   margin-top: 1rem;
+}
+
+.list-change-move {
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 </style>
 
@@ -47,19 +53,39 @@ export default {
     ApolloTest,
   },
 
-  created () {},
-
   apollo: {
-    subjects: gql`
-      query GetAllSubjects {
-        subjects {
-          id
-          personName
-          costumeDescription
-          voteCount
+    subjects: {
+      query: gql`
+        query GetAllSubjects {
+          subjects {
+            id
+            personName
+            costumeDescription
+            voteCount
+            votes {
+              id
+              voter {
+                id
+                name
+              }
+            }
+          }
         }
-      }
-    `,
+      `,
+      subscribeToMore: {
+        document: gql`
+          subscription VoteUpdates {
+            voteCast {
+              id
+              voteCount
+            }
+          }
+        `,
+
+        updateQuery: (previousResult, { subscriptionData }) => {
+        },
+      },
+    },
 
     votedFor: gql`
       query VotedFor {

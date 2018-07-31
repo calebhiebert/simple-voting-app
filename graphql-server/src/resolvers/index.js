@@ -19,4 +19,6 @@ module.exports = {
   currentUserResolver: user.getCurrentUser,
   allUsersResolver: user.getUsers,
   updateUserResolver: user.updateUser,
+  subjectChangedResolver: subject.subjectChangedResolver,
+  voteCastResolver: vote.voteCastResolver,
 };

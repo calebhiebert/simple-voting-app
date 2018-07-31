@@ -8,6 +8,11 @@ type Query {
   users: [User!]!
 }
 
+type Subscription {
+  subjectChanged(id: ID!): Subject!
+  voteCast: [Subject!]!
+}
+
 type Mutation {
   createSubject(input: SubjectCreation!): Subject!
   updateSubject(input: SubjectMutation!): Subject!

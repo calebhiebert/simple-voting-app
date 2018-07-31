@@ -1,12 +1,15 @@
-const { ApolloServer, gql, PubSub } = require('apollo-server-express');
+const { ApolloServer, gql } = require('apollo-server-express');
 const pino = require('pino');
 const express = require('express');
+const graphql = require('graphql');
 const localResolvers = require('./resolvers');
 const authMiddleware = require('./auth-middleware').default;
+const { SubscriptionServer } = require('subscriptions-transport-ws');
 const cors = require('cors');
 const schema = gql`
   ${require('fs').readFileSync(require('path').join(__dirname, '..', 'schema.gql'))}
 `;
+const { pubsub } = require('./pubsub');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -36,6 +39,10 @@ const resolvers = {
     updateUser: localResolvers.updateUserResolver,
     vote: localResolvers.doVoteResolver,
   },
+  Subscription: {
+    subjectChanged: localResolvers.subjectChangedResolver,
+    voteCast: localResolvers.voteCastResolver,
+  },
   Subject: {
     votes: localResolvers.subjectVoteResolver,
     history: localResolvers.subjectHistoryResolver,
@@ -57,12 +64,25 @@ const server = new ApolloServer({
   context: ({ req }) => {
     return {
       user: req.user,
+      pubsub,
     };
   },
 });
 
 server.applyMiddleware({ app });
 
-app.listen({ port }, () => {
+const httpServer = app.listen({ port }, () => {
   logger.info(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 });
+
+const subscriptionServer = new SubscriptionServer(
+  {
+    schema: server.schema,
+    execute: graphql.execute,
+    subscribe: graphql.subscribe,
+  },
+  {
+    server: httpServer,
+    path: '/graphql',
+  },
+);

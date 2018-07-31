@@ -36,6 +36,10 @@
   background-color: #5755d917;
   /* border: 1px solid #5755d9; */
 }
+
+.bar-item {
+  transition: width 0.35s;
+}
 </style>
 
 <script>

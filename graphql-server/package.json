@@ -18,9 +18,11 @@
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "graphql": "^0.13.2",
+    "graphql-subscriptions": "^0.5.8",
     "pg": "^7.4.3",
     "pino": "^4.17.5",
-    "sequelize": "^4.38.0"
+    "sequelize": "^4.38.0",
+    "subscriptions-transport-ws": "^0.9.14"
   },
   "devDependencies": {
     "sequelize-cli": "^4.0.0",

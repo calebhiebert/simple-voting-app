@@ -82,6 +82,7 @@
     <p class="text-center" v-if="!isBanned">{{ lang.editNotice }} <a @click="edit">{{ lang.editText }}</a></p>
     <p class="text-center" v-if="isAdmin"><a @click="deleteSubject">delete</a></p>
   </div>
+  <div class="loading loading-lg" v-else></div>
 </template>
 
 <style scoped>
@@ -147,21 +148,6 @@ export default {
     EditHistory,
     Votes,
     Modal,
-  },
-
-  mounted () {
-    if (this.$route.query.voted === true) {
-      if (this.$store.state.settings.showVotedNotification) {
-        this.$store.commit(
-          'toast',
-          'Your vote has been counted. Visit the settings menu in the top left corner to turn off auto voting',
-        );
-      }
-      this.$router.replace({
-        name: 'subject-view',
-        params: { id: this.$route.params.id },
-      });
-    }
   },
 
   data () {
@@ -373,12 +359,18 @@ export default {
               data.votedFor.id = vote.subject.id;
               store.writeQuery({ query: q, data });
             } catch (err) {
-              this.$apollo.query({ query: q });
+              this.$apollo.query({ query: q, fetchPolicy: 'network-only' });
             }
           },
         })
         .then((vote) => {
           this.voting = false;
+          if (this.$store.state.settings.showVotedNotification) {
+            this.$store.commit(
+              'toast',
+              'Your vote has been counted. Visit the settings menu in the top left corner to turn off auto voting',
+            );
+          }
         })
         .catch((err) => {
           this.voting = false;

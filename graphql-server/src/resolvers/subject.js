@@ -2,6 +2,7 @@ const db = require('../db');
 const { NotFoundError, MustBeAuthenticatedError } = require('../errors/errors');
 const logger = require('pino')({ name: 'create-subject', level: 'debug' });
 const { AuthenticationError } = require('apollo-server');
+const pubsub = require('../pubsub');
 
 module.exports.genericSubjectResolver = (rootKey) => {
   return async (root, args, context, info) => {
@@ -13,6 +14,12 @@ module.exports.genericSubjectResolver = (rootKey) => {
 
     return subject;
   };
+};
+
+module.exports.subjectChangedResolver = {
+  subscribe: (root, args, context, info) => {
+    return pubsub.pubsub.asyncIterator(pubsub.SUBJECT_CHANGED);
+  },
 };
 
 module.exports.getSubject = async (root, args, context, info) => {
@@ -40,6 +47,8 @@ module.exports.createSubject = async (root, args, context, info) => {
     ...args.input,
     subjectId: subject.id,
   });
+
+  context.pubsub.publish(pubsub.SUBJECT_CHANGED, { subjectChanged: subject });
   return subject;
 };
 
@@ -98,6 +107,7 @@ module.exports.updateSubject = async (root, args, context, info) => {
   });
 
   await subject.update(args.input);
+  context.pubsub.publish(pubsub.SUBJECT_CHANGED, { subjectChanged: subject });
   return subject;
 };
 
