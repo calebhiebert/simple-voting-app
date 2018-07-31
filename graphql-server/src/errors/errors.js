@@ -1,7 +1,8 @@
-class NotFoundError extends Error {
+const { ApolloError } = require('apollo-server');
+
+class NotFoundError extends ApolloError {
   constructor() {
-    super('The entity was not found');
-    this.name = 'EntityNotFound';
+    super('The requested resource could not be found', 'NOT_FOUND');
   }
 }
 

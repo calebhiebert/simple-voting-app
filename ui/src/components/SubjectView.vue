@@ -7,7 +7,7 @@
           <button class="btn btn-sm" @click="$router.push({name: 'home'})">
             <i class="icon icon-arrow-left"></i>
           </button>
-          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote" v-if="!isVotedFor && !isBanned">Vote</button>
+          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote()" v-if="!isVotedFor && !isBanned">Vote</button>
           <button class="btn btn-sm btn-success" v-else-if="!isBanned">
             <i class="icon icon-check"></i> Voted
           </button>
@@ -52,7 +52,7 @@
         <button class="btn" @click="$router.push({name: 'home'})">
           <i class="icon icon-arrow-left"></i>
         </button>
-        <button class="btn btn-primary" v-if="!isVotedFor && !isBanned" :class="{'loading': voting}" @click="vote">Vote</button>
+        <button class="btn btn-primary" v-if="!isVotedFor && !isBanned" :class="{'loading': voting}" @click="vote()">Vote</button>
         <button class="btn btn-success" v-else-if="!isBanned">
           <i class="icon icon-check"></i> Voted
         </button>
@@ -205,6 +205,12 @@ export default {
           };
         },
 
+        result: (queryResult) => {
+          if (this.$route.query.doVote && queryResult.data && !this.isBanned) {
+            this.vote(queryResult.data.subject.id);
+          }
+        },
+
         error (err) {
           if (err.networkError) {
             console.log('NETWORK ERROR', err.networkError);
@@ -281,6 +287,15 @@ export default {
                     id
                     personName
                     costumeDescription
+                    history {
+                      id
+                      personName
+                      costumeDescription
+                      createdAt
+                      editor {
+                        id
+                      }
+                    }
                   }
                 }
               `,
@@ -293,7 +308,6 @@ export default {
               },
             })
             .then((result) => {
-              console.log(result);
               this.saving = false;
               this.editing = false;
             });
@@ -301,7 +315,7 @@ export default {
       });
     },
 
-    vote () {
+    vote (subjId) {
       this.voting = true;
       this.$apollo
         .mutate({
@@ -325,7 +339,7 @@ export default {
           `,
 
           variables: {
-            subjectId: this.subject.id,
+            subjectId: subjId || this.subject.id,
           },
 
           update: (store, { data: { vote } }) => {
@@ -373,9 +387,21 @@ export default {
     },
 
     deleteSubject () {
-      api.deleteSubject(this.subject.id).then((subject) => {
-        this.$router.replace({ name: 'home' });
-      });
+      this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation DeleteSubject($id: ID!) {
+              deleteSubject(id: $id)
+            }
+          `,
+
+          variables: {
+            id: this.subject.id,
+          },
+        })
+        .then(() => {
+          this.$router.replace({ name: 'home' });
+        });
     },
   },
 };

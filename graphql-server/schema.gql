@@ -11,6 +11,8 @@ type Query {
 type Mutation {
   createSubject(input: SubjectCreation!): Subject!
   updateSubject(input: SubjectMutation!): Subject!
+  deleteSubject(id: ID!): Boolean!
+  updateUser(input: UserMutation!): User!
   vote(subjectId: ID!): Vote!
 }
 
@@ -61,4 +63,10 @@ input SubjectMutation {
   id: ID!
   personName: String!
   costumeDescription: String!
+}
+
+input UserMutation {
+  id: ID!
+  name: String!
+  banned: Boolean!
 }

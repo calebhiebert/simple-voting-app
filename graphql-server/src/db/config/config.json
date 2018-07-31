@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "password",
-    "database": "postgres",
-    "host": "192.168.99.100",
+    "username": "voter",
+    "password": "voterpassword",
+    "database": "voter",
+    "host": "127.0.0.1",
     "dialect": "postgres",
     "operatorsAliases": false
   },

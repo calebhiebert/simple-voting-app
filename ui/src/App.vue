@@ -15,7 +15,7 @@
     <button class="btn btn-sm mt-2 ml-2 absolute" @click="showSettings">
       <i class="icon icon-more-vert"></i>
     </button>
-    <div class="toast toast-warning text-center top" v-if="$store.state.me && $store.getters.isBanned">
+    <div class="toast toast-warning text-center top" v-if="isBanned">
       <strong>Warning</strong>
       <br/>
       {{ lang.banNotice }}
@@ -66,6 +66,7 @@ import lang from '@/lang.json';
 
 import Modal from './components/Modal';
 import Settings from './components/Settings';
+import gql from 'graphql-tag';
 
 export default {
   components: {
@@ -83,9 +84,29 @@ export default {
     },
   },
 
+  apollo: {
+    user: gql`
+      query GetMe {
+        user {
+          id
+          name
+          banned
+          admin
+        }
+      }
+    `,
+  },
+
   computed: {
     isMobile () {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
+    },
+    isBanned () {
+      if (this.user) {
+        return this.user.banned;
+      } else {
+        return false;
+      }
     },
   },
 };

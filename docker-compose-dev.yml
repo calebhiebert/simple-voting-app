@@ -5,8 +5,9 @@ services:
     ports:
       - "5432:5432"
     environment: 
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: voterpassword
+      POSTGRES_USER: voter
+      POSTGRES_DB: voter
   adminer:
     image: adminer
     ports:

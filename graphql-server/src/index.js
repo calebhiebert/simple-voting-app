@@ -5,9 +5,7 @@ const localResolvers = require('./resolvers');
 const authMiddleware = require('./auth-middleware').default;
 const cors = require('cors');
 const schema = gql`
-  ${require('fs').readFileSync(
-    require('path').join(__dirname, '..', 'schema.gql'),
-  )}
+  ${require('fs').readFileSync(require('path').join(__dirname, '..', 'schema.gql'))}
 `;
 
 const app = express();
@@ -34,6 +32,8 @@ const resolvers = {
   Mutation: {
     createSubject: localResolvers.createSubjectResolver,
     updateSubject: localResolvers.updateSubjectResolver,
+    deleteSubject: localResolvers.deleteSubjectResolver,
+    updateUser: localResolvers.updateUserResolver,
     vote: localResolvers.doVoteResolver,
   },
   Subject: {

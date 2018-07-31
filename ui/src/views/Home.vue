@@ -7,15 +7,15 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column col-10 col-sm-11 col-mx-auto" v-if="!$apollo.loading">
-        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="subject.id === votedFor.id" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
+      <div class="column col-10 col-sm-11 col-mx-auto" v-if="!$apollo.loading && sortedSubjects">
+        <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
       </div>
       <div class="column col-10 col-sm-11 col-mx-auto" v-if="$apollo.queries.subjects.loading">
         <div class="loading loading-lg"></div>
       </div>
     </div>
     <div class="divider"></div>
-    <div class="columns" v-if="!$store.getters.isBanned">
+    <div class="columns" v-if="!isBanned">
       <div class="column col-12 col-mx-auto text-center">
         {{ lang.addNotice }} <router-link :to="{name: 'subject-create'}">{{ lang.addText }}</router-link>
       </div>
@@ -68,6 +68,17 @@ export default {
         }
       }
     `,
+
+    user: gql`
+      query GetMe {
+        user {
+          id
+          name
+          banned
+          admin
+        }
+      }
+    `,
   },
 
   data () {
@@ -88,6 +99,14 @@ export default {
         });
       } else {
         return null;
+      }
+    },
+
+    isBanned () {
+      if (this.user) {
+        return this.user.banned;
+      } else {
+        return false;
       }
     },
 
@@ -114,9 +133,7 @@ export default {
         name: 'subject-view',
         params: { id: subject.id },
         query: {
-          doVote:
-            this.$store.state.settings.autoVoteOnClick &&
-            !this.$store.getters.isBanned,
+          doVote: this.$store.state.settings.autoVoteOnClick && !this.isBanned,
         },
       });
     },

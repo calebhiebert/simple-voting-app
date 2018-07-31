@@ -18,6 +18,10 @@ if (localStorage.getItem('access-token') !== null) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('access-token')}`;
 }
 
+export const hanldeGQLErr = (err) => {
+  console.log(err);
+};
+
 const handleAxiosResponse = (response) => {
   return response.data;
 };

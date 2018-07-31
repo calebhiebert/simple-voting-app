@@ -20,7 +20,22 @@ exports.default = async function(req, res, next) {
     const bearerToken = authorization.substring('Bearer '.length).trim();
 
     if (cache[bearerToken]) {
-      req.user = cache[bearerToken];
+      const dbUser = await db.user.findOne({
+        where: {
+          id: { [db.Op.eq]: cache[bearerToken].id },
+        },
+      });
+
+      if (dbUser === null) {
+        res.status(500).json({
+          name: 'ServerException',
+          message: 'Something has gone terribly wrong',
+        });
+        return;
+      }
+
+      req.user = dbUser;
+
       next();
     } else {
       try {
@@ -41,10 +56,22 @@ exports.default = async function(req, res, next) {
         next();
       } catch (err) {
         logger.warn('Auth', { name: err.name, message: err.message });
-        res.status(403).json({
-          name: 'AuthenticationError',
-          message: 'Failed to authenticate',
-        });
+
+        switch (err.name) {
+          case 'SequelizeConnectionError':
+          case 'SequelizeDatabaseError':
+            res.status(500).json({
+              name: 'ServerException',
+              message: 'Something has gone terribly wrong',
+            });
+            break;
+          default:
+            res.status(403).json({
+              name: 'AuthenticationError',
+              message: 'Failed to authenticate',
+            });
+            break;
+        }
       }
     }
   } else {

@@ -76,26 +76,50 @@ export default {
   },
 
   methods: {
-    loadUsers () {
-      // api.getUsers().then((users) => {
-      //   this.users = users;
-      // });
-    },
-
     ban (user) {
-      this.banning = user.userId;
-      // api.banUser(user.userId).then(() => {
-      //   this.banning = '';
-      //   user.banned = true;
-      // });
+      this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateUser($input: UserMutation!) {
+            updateUser(input: $input) {
+              id
+              name
+              banned
+              admin
+              updatedAt
+            }
+          }
+        `,
+        variables: {
+          input: {
+            id: user.id,
+            banned: true,
+            name: user.name,
+          },
+        },
+      });
     },
 
     unban (user) {
-      this.banning = user.userId;
-      // api.unBanUser(user.userId).then(() => {
-      //   this.banning = '';
-      //   user.banned = false;
-      // });
+      this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateUser($input: UserMutation!) {
+            updateUser(input: $input) {
+              id
+              name
+              banned
+              admin
+              updatedAt
+            }
+          }
+        `,
+        variables: {
+          input: {
+            id: user.id,
+            banned: false,
+            name: user.name,
+          },
+        },
+      });
     },
   },
 };

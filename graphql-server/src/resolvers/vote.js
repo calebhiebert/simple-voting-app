@@ -1,9 +1,9 @@
 const db = require('../db');
-const { MustBeAuthenticatedError } = require('../errors/errors');
+const { AuthenticationError } = require('apollo-server');
 
 module.exports.votedFor = async (root, args, context, info) => {
   if (!context.user) {
-    throw new MustBeAuthenticatedError();
+    throw new AuthenticationError();
   }
 
   const existingVote = await db.vote.findOne({
@@ -19,12 +19,16 @@ module.exports.votedFor = async (root, args, context, info) => {
     ],
   });
 
+  if (existingVote === null) {
+    return null;
+  }
+
   return existingVote.subject;
 };
 
 module.exports.doVoteResolver = async (root, args, context, info) => {
   if (!context.user) {
-    throw new MustBeAuthenticatedError();
+    throw new AuthenticationError();
   }
 
   const existingVote = await db.vote.findOne({

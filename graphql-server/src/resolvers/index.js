@@ -10,6 +10,7 @@ module.exports = {
   updateSubjectResolver: subject.updateSubject,
   createSubjectResolver: subject.createSubject,
   subjectVoteResolver: subject.voteResolver,
+  deleteSubjectResolver: subject.deleteSubject,
   subjectHistoryResolver: subject.historyResolver,
   genericSubjectResolver: subject.genericSubjectResolver,
   genericUserResolver: user.genericGetUser,
@@ -17,4 +18,5 @@ module.exports = {
   votedForResolver: vote.votedFor,
   currentUserResolver: user.getCurrentUser,
   allUsersResolver: user.getUsers,
+  updateUserResolver: user.updateUser,
 };

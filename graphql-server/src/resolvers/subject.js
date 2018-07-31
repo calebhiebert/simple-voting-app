@@ -1,6 +1,7 @@
 const db = require('../db');
 const { NotFoundError, MustBeAuthenticatedError } = require('../errors/errors');
 const logger = require('pino')({ name: 'create-subject', level: 'debug' });
+const { AuthenticationError } = require('apollo-server');
 
 module.exports.genericSubjectResolver = (rootKey) => {
   return async (root, args, context, info) => {
@@ -29,8 +30,8 @@ module.exports.getSubject = async (root, args, context, info) => {
 };
 
 module.exports.createSubject = async (root, args, context, info) => {
-  if (context.user === null) {
-    throw new MustBeAuthenticatedError();
+  if (context.user === null || context.user.banned) {
+    throw new AuthenticationError();
   }
 
   const subject = await db.subject.create(args.input);
@@ -42,9 +43,41 @@ module.exports.createSubject = async (root, args, context, info) => {
   return subject;
 };
 
+module.exports.deleteSubject = async (root, args, context, info) => {
+  if (!context.user || context.user.banned) {
+    throw new AuthenticationError();
+  }
+
+  const subject = await db.subject.findOne({
+    where: {
+      id: { [db.Op.eq]: args.id },
+    },
+  });
+
+  await db.subject_history.destroy({
+    where: {
+      subjectId: { [db.Op.eq]: args.id },
+    },
+  });
+
+  await db.vote.destroy({
+    where: {
+      subjectId: { [db.Op.eq]: args.id },
+    },
+  });
+
+  if (subject === null) {
+    throw new NotFoundError();
+  }
+
+  await subject.destroy();
+
+  return true;
+};
+
 module.exports.updateSubject = async (root, args, context, info) => {
-  if (context.user === null) {
-    throw new MustBeAuthenticatedError();
+  if (context.user === null || context.user.banned) {
+    throw new AuthenticationError();
   }
 
   const subject = await db.subject.findOne({
@@ -56,6 +89,13 @@ module.exports.updateSubject = async (root, args, context, info) => {
   if (subject === null) {
     throw new NotFoundError();
   }
+
+  await db.subject_history.create({
+    editor: context.user.id,
+    personName: args.input.personName,
+    costumeDescription: args.input.costumeDescription,
+    subjectId: subject.id,
+  });
 
   await subject.update(args.input);
   return subject;
