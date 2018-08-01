@@ -21,6 +21,7 @@ export const GET_SUBJECT_BASIC_QUERY = gql`
       id
       personName
       costumeDescription
+      voteCount
     }
   }
 `;

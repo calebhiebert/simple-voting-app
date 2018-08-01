@@ -1,16 +1,18 @@
 <template>
   <div v-if="sortedHistory !== null">
-    <div class="tile" v-for="(edit, index) of sortedHistory" :key="edit.id">
-      <div class="tile-icon">
-        <figure class="avatar">
-          <img :src="getAvatarUrl(edit.editor.name)" alt="avatar">
-        </figure>
+    <transition-group name="fade-virt-rev">
+      <div class="tile" v-for="(edit, index) of sortedHistory" :key="edit.id">
+        <div class="tile-icon">
+          <figure class="avatar">
+            <img :src="getAvatarUrl(edit.editor.name)" alt="avatar">
+          </figure>
+        </div>
+        <div class="tile-content">
+          <p class="tile-title"> {{ edit.editor.name }} <i v-if="index === history.length - 1"> (Original)</i></p>
+          <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
+        </div>
       </div>
-      <div class="tile-content">
-        <p class="tile-title"> {{ edit.editor.name }} <i v-if="index === history.length - 1"> (Original)</i></p>
-        <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
-      </div>
-    </div>
+    </transition-group>
 
   </div>
   <div class="loading loading-lg" v-else-if="$apollo.loading"></div>
@@ -39,17 +41,17 @@ export default {
     },
   },
 
-  data () {
+  data() {
     return {
       reverting: false,
     };
   },
 
   apollo: {
-    subject () {
+    subject() {
       return {
         query: EDIT_HISTORY_QUERY,
-        variables () {
+        variables() {
           return {
             id: this.subjectId,
           };
@@ -60,20 +62,20 @@ export default {
 
   methods: {
     distanceInWordsToNow,
-    getAvatarUrl (name) {
+    getAvatarUrl(name) {
       return avatarURL(name);
     },
   },
 
   computed: {
-    history () {
+    history() {
       if (this.subject) {
         return this.subject.history;
       } else {
         return null;
       }
     },
-    sortedHistory () {
+    sortedHistory() {
       if (this.history) {
         return this.history.slice(0).sort((a, b) => {
           if (a.createdAt < b.createdAt) {

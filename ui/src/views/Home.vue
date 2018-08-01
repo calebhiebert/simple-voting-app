@@ -7,12 +7,12 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column col-10 col-sm-11 col-mx-auto" v-if="!$apollo.loading && sortedSubjects">
+      <div class="column col-10 col-sm-11 col-mx-auto" v-if="sortedSubjects">
         <transition-group name="list-change">
           <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
         </transition-group>
       </div>
-      <div class="column col-10 col-sm-11 col-mx-auto" v-if="$apollo.queries.subjects.loading">
+      <div class="column col-10 col-sm-11 col-mx-auto" v-else>
         <div class="loading loading-lg"></div>
       </div>
     </div>
@@ -54,6 +54,7 @@ export default {
   apollo: {
     subjects: {
       query: GET_ALL_SUBJECTS_QUERY,
+      fetchPolicy: 'cache-and-network',
       subscribeToMore: {
         document: VOTE_CAST_SUBSCRIPTION,
       },
@@ -63,12 +64,12 @@ export default {
     user: GET_ME_QUERY,
   },
 
-  data () {
+  data() {
     return { lang };
   },
 
   computed: {
-    sortedSubjects () {
+    sortedSubjects() {
       if (this.subjects) {
         return this.subjects.slice(0).sort((a, b) => {
           if (a.voteCount > b.voteCount) {
@@ -84,7 +85,7 @@ export default {
       }
     },
 
-    isBanned () {
+    isBanned() {
       if (this.user) {
         return this.user.banned;
       } else {
@@ -92,7 +93,7 @@ export default {
       }
     },
 
-    totalVotes () {
+    totalVotes() {
       if (this.subjects) {
         let votes = 0;
 
@@ -110,7 +111,7 @@ export default {
   },
 
   methods: {
-    detailSubject (subject) {
+    detailSubject(subject) {
       this.$router.push({
         name: 'subject-view',
         params: { id: subject.id },
