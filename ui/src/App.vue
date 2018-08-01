@@ -20,8 +20,7 @@
       <br/>
       {{ lang.banNotice }}
     </div>
-    <transition
-      name="fade-virt">
+    <transition name="fade-virt" mode="out-in">
     <router-view style="position: absolute; z-index: -1;"/>
     </transition>
   </div>
@@ -41,7 +40,7 @@
 
 .fade-virt-enter-active,
 .fade-virt-leave-active {
-  transition: all 0.25s ease;
+  transition: all 125ms ease;
 }
 
 .fade-virt-enter,
