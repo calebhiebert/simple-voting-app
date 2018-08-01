@@ -3,16 +3,18 @@
     <div v-if="votes.length === 0">
       <p>No votes here :(</p>
     </div>
-    <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
-      <div class="tile-icon">
-        <figure class="avatar">
-          <img :src="getAvatarUrl(vote.voter.name)" alt="avatar">
-        </figure>
+    <transition-group name="fade-virt-rev">
+      <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
+        <div class="tile-icon">
+          <figure class="avatar">
+            <img :src="getAvatarUrl(vote.voter.name)" alt="avatar">
+          </figure>
+        </div>
+        <div class="tile-content">
+          <p class="tile-title">{{ vote.voter.name }} - <i>{{ distanceInWordsToNow(vote.updatedAt) }} ago</i></p>
+        </div>
       </div>
-      <div class="tile-content">
-        <p class="tile-title">{{ vote.voter.name }} - <i>{{ distanceInWordsToNow(vote.updatedAt) }} ago</i></p>
-      </div>
-    </div>
+    </transition-group>
   </div>
   <div class="loading loading-lg" v-else-if="$apollo.loading">
 

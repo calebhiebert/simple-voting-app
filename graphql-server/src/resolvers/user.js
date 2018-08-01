@@ -1,12 +1,13 @@
 const db = require('../db');
 const { AuthenticationError } = require('apollo-server');
 const { NotFoundError } = require('../errors/errors');
+const dl = require('../dataloader')();
 const pino = require('pino');
 
 const logger = pino({ name: 'user-resolvers', level: 'debug' });
 
 module.exports.genericGetUser = (rootOrArgs, key) => {
-  return async (root, args, { dl }, info) => {
+  return async (root, args, context, info) => {
     let id;
 
     if (rootOrArgs === 'args') {
@@ -21,7 +22,7 @@ module.exports.genericGetUser = (rootOrArgs, key) => {
   };
 };
 
-module.exports.updateUser = async (root, args, { user, dl }, info) => {
+module.exports.updateUser = async (root, args, { user }, info) => {
   if (!user || user.banned || !user.admin) {
     throw new AuthenticationError();
   }
@@ -37,6 +38,9 @@ module.exports.updateUser = async (root, args, { user, dl }, info) => {
   }
 
   await dbUser.update(args.input);
+
+  // reset dataloader user cache
+  dl.userById.clear(dbUser.id);
   return dbUser;
 };
 
@@ -46,6 +50,10 @@ module.exports.getCurrentUser = (root, args, context, info) => {
 
 module.exports.getUsers = async (root, args, context, info) => {
   const users = await db.user.findAll();
+
+  for (const user of users) {
+    dl.userById.prime(user.id, user);
+  }
 
   return users;
 };

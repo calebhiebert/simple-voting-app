@@ -3,11 +3,6 @@ const user = require('./user');
 const vote = require('./vote');
 
 module.exports = {
-  genericSubjectResolver: subject.genericSubjectResolver,
-  genericUserResolver: user.genericGetUser,
-};
-
-module.exports = {
   Query: {
     subjects: subject.getSubjects,
     subject: subject.getSubject,

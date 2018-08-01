@@ -11,13 +11,6 @@ export const GET_ALL_SUBJECTS_QUERY = gql`
       personName
       costumeDescription
       voteCount
-      votes {
-        id
-        voter {
-          id
-          name
-        }
-      }
     }
   }
 `;
@@ -170,6 +163,14 @@ export const VOTE_CAST_SUBSCRIPTION = gql`
     voteCast {
       id
       voteCount
+      votes {
+        id
+        voter {
+          id
+          name
+        }
+        updatedAt
+      }
     }
   }
 `;

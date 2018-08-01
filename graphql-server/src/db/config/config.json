@@ -5,8 +5,7 @@
     "database": "voter",
     "host": "postgres",
     "dialect": "postgres",
-    "operatorsAliases": false,
-    "logging": false
+    "operatorsAliases": false
   },
   "test": {
     "username": "root",

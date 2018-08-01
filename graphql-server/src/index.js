@@ -10,7 +10,6 @@ const cors = require('cors');
 const schemaString = require('fs').readFileSync(require('path').join(__dirname, '..', 'schema.gql'), {
   encoding: 'utf8',
 });
-const dataloaders = require('./dataloader');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -32,8 +31,6 @@ const server = new ApolloServer({
   context: ({ req }) => {
     return {
       user: req.user,
-      pubsub,
-      dl: dataloaders(),
     };
   },
 });
@@ -47,18 +44,7 @@ const httpServer = app.listen({ port }, () => {
 const subscriptionServer = new SubscriptionServer(
   {
     schema: server.schema,
-    execute: (schema, document, rootValue, contextValue, variableValues, operationName, fieldResolver) => {
-      console.log('EXECUTING');
-      return graphql.execute(
-        schema,
-        document,
-        rootValue,
-        { dl: dataloaders() },
-        variableValues,
-        operationName,
-        fieldResolver,
-      );
-    },
+    execute: graphql.execute,
     subscribe: graphql.subscribe,
   },
   {

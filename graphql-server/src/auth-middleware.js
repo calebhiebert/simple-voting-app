@@ -1,6 +1,7 @@
 const AuthenticationClient = require('auth0').AuthenticationClient;
 const pino = require('pino');
 const db = require('./db');
+const dl = require('./dataloader')();
 
 const logger = pino({ name: 'auth-mw' });
 
@@ -20,11 +21,7 @@ exports.default = async function(req, res, next) {
     const bearerToken = authorization.substring('Bearer '.length).trim();
 
     if (cache[bearerToken]) {
-      const dbUser = await db.user.findOne({
-        where: {
-          id: { [db.Op.eq]: cache[bearerToken].id },
-        },
-      });
+      const dbUser = await dl.userById.load(cache[bearerToken].id);
 
       if (dbUser === null) {
         res.status(500).json({
@@ -41,17 +38,21 @@ exports.default = async function(req, res, next) {
       try {
         userData = await auth0.getProfile(bearerToken);
 
-        const dbUser = await db.user.findOrCreate({
-          where: { id: { [db.Op.eq]: userData.sub } },
-          defaults: {
+        let dbUser = await dl.userById.load(userData.sub);
+
+        if (dbUser === null) {
+          dbUser = await db.user.create({
             id: userData.sub,
             name: userData.name,
             admin: false,
             banned: false,
-          },
-        });
+          });
 
-        req.user = dbUser[0].dataValues;
+          // Make sure the user data is fresh
+          dl.userById.clear(userData.sub);
+        }
+
+        req.user = dbUser;
         cache[bearerToken] = req.user;
         next();
       } catch (err) {
