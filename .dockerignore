@@ -1,5 +1,4 @@
 ui/node_modules
-dist
-test.db
-voter
-ui/dist
+graphql-server/node_modules
+**dist
+*.db

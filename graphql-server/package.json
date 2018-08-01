@@ -7,6 +7,7 @@
   "license": "AGPLv3",
   "private": true,
   "scripts": {
+    "up": "yarn migrate && yarn start",
     "start": "node -r dotenv/config src/index.js | pino",
     "migrate": "node_modules/.bin/sequelize db:migrate --config src/db/config/config.json --migrations-path src/db/migrations"
   },

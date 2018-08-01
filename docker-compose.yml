@@ -3,16 +3,14 @@ services:
   postgres:
     image: postgres:alpine
     environment: 
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: voterpassword
+      POSTGRES_USER: voter
+      POSTGRES_DB: voter
+    volumes:
+      - "./postgres:/var/lib/postgresql/data"
   app:
     image: panchem/voter
     build: .
     restart: on-failure
     ports:
-      - "8080:8080"
-    volumes:
-      - "./postgres:/var/lib/postgresql/data"
-    environment:
-      DATABASE: postgres
-      POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres dbname=postgres password=password sslmode=disable"
+      - "8080:4000"

@@ -22,7 +22,7 @@
       </div>
 
       <!-- Name/Costume View -->
-      <div class="column col-5 col-sm-12" :class="{'col-mx-auto': isMobile}" v-if="!editing">
+      <div class="column col-5 col-md-7 col-sm-12" :class="{'col-mx-auto': isMobile}" v-if="!editing">
         <div class="text-center show-sm">
           <h1>{{ subject.personName }}</h1>
           <h4 class="text-gray">{{ subject.costumeDescription }}</h4>
@@ -73,7 +73,12 @@
     <p class="text-center" v-if="!isBanned">{{ lang.editNotice }} <a @click="edit">{{ lang.editText }}</a></p>
     <p class="text-center" v-if="isAdmin"><a @click="deleteSubject">delete</a></p>
   </div>
-  <div class="loading loading-lg" v-else></div>
+  <div v-else-if="notFound">
+    <div class="toast toast-warning">
+      <h3>404</h3>
+      This person doesn't exist any more :(
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -140,12 +145,20 @@ export default {
     Modal,
   },
 
+  props: {
+    status: {
+      type: Object,
+      required: true,
+    },
+  },
+
   data () {
     return {
       lang,
       editing: false,
       saving: false,
       voting: false,
+      notFound: false,
     };
   },
 
@@ -164,6 +177,14 @@ export default {
           },
         },
 
+        error (err) {
+          if (err.graphQLErrors.length > 0) {
+            if (err.graphQLErrors[0].extensions.code === 'NOT_FOUND') {
+              this.notFound = true;
+            }
+          }
+        },
+
         variables () {
           return {
             id: this.$route.params.id,
@@ -171,6 +192,9 @@ export default {
         },
 
         result: (queryResult) => {
+          if (queryResult.data) {
+            this.status.loaded = true;
+          }
           if (this.$route.query.doVote && queryResult.data && !this.isBanned) {
             this.vote(queryResult.data.subject.id);
           }

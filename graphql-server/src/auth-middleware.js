@@ -47,10 +47,10 @@ exports.default = async function(req, res, next) {
             admin: false,
             banned: false,
           });
-
-          // Make sure the user data is fresh
-          dl.userById.clear(userData.sub);
         }
+
+        // Make sure the user data is fresh
+        dl.userById.clear(userData.sub);
 
         req.user = dbUser;
         cache[bearerToken] = req.user;

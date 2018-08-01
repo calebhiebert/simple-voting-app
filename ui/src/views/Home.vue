@@ -7,13 +7,13 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column col-10 col-sm-11 col-mx-auto" v-if="sortedSubjects">
-        <transition-group name="list-change">
+      <div class="column col-10 col-sm-11 col-mx-auto">
+        <transition-group name="list-change" v-if="sortedSubjects">
           <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
         </transition-group>
-      </div>
-      <div class="column col-10 col-sm-11 col-mx-auto" v-else>
-        <div class="loading loading-lg"></div>
+        <div>
+          <main-page-vote-view-placeholder class="mt-2" v-for="pid of placeholderIds" :key="pid"></main-page-vote-view-placeholder>
+        </div>
       </div>
     </div>
     <div class="divider"></div>
@@ -40,6 +40,7 @@ import lang from '@/lang.json';
 import { VOTE_CAST_SUBSCRIPTION, GET_ME_QUERY, VOTED_FOR_QUERY, GET_ALL_SUBJECTS_QUERY } from '../queries';
 
 import MainPageVoteView from '@/components/MainPageVoteView.vue';
+import MainPageVoteViewPlaceholder from '@/components/MainPageVoteViewPlaceholder.vue';
 import Modal from '@/components/Modal.vue';
 import Settings from '@/components/Settings.vue';
 
@@ -47,6 +48,7 @@ export default {
   name: 'home',
   components: {
     MainPageVoteView,
+    MainPageVoteViewPlaceholder,
     Modal,
     Settings,
   },
@@ -64,12 +66,12 @@ export default {
     user: GET_ME_QUERY,
   },
 
-  data() {
+  data () {
     return { lang };
   },
 
   computed: {
-    sortedSubjects() {
+    sortedSubjects () {
       if (this.subjects) {
         return this.subjects.slice(0).sort((a, b) => {
           if (a.voteCount > b.voteCount) {
@@ -85,7 +87,7 @@ export default {
       }
     },
 
-    isBanned() {
+    isBanned () {
       if (this.user) {
         return this.user.banned;
       } else {
@@ -93,7 +95,7 @@ export default {
       }
     },
 
-    totalVotes() {
+    totalVotes () {
       if (this.subjects) {
         let votes = 0;
 
@@ -108,15 +110,19 @@ export default {
         return 0;
       }
     },
+
+    placeholderIds () {
+      return [1, 2, 3, 4];
+    },
   },
 
   methods: {
-    detailSubject(subject) {
+    detailSubject (subject) {
       this.$router.push({
         name: 'subject-view',
         params: { id: subject.id },
         query: {
-          doVote: this.$store.state.settings.autoVoteOnClick && !this.isBanned,
+          doVote: this.$store.state.settings.autoVoteOnClick && !this.isBanned ? true : undefined,
         },
       });
     },

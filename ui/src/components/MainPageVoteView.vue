@@ -8,7 +8,8 @@
           </figure>
         </div>
         <div class="tile-content">
-          <p class="tile-title">{{ name }} ({{costume}})</p>
+          <div class="tile-title">{{ name }}</div>
+          <div class="costume-description text-gray">{{ costume }}</div>
           <div class="bar bar-sm">
             <div class="bar-item" role="progressbar" :style="{width: barWidth}" :aria-valuenow="votePercent * 100" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
@@ -22,6 +23,11 @@
 .hov {
   padding: 0.5rem;
   cursor: pointer;
+}
+
+.costume-description {
+  margin-top: -0.2rem;
+  margin-bottom: 0.2rem;
 }
 
 .hov:hover {

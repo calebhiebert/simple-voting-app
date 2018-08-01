@@ -1,13 +1,13 @@
 const { ApolloServer, gql } = require('apollo-server-express');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
-const { pubsub } = require('./pubsub');
 const pino = require('pino');
 const express = require('express');
 const graphql = require('graphql');
 const resolvers = require('./resolvers');
 const authMiddleware = require('./auth-middleware').default;
+const path = require('path');
 const cors = require('cors');
-const schemaString = require('fs').readFileSync(require('path').join(__dirname, '..', 'schema.gql'), {
+const schemaString = require('fs').readFileSync(path.join(__dirname, '..', 'schema.gql'), {
   encoding: 'utf8',
 });
 
@@ -24,6 +24,7 @@ app.use(
   }),
 );
 app.use(authMiddleware);
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 const server = new ApolloServer({
   typeDefs: schema,
@@ -37,8 +38,14 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app });
 
+app.use((req, res) => {
+  res.header('Content-Type', 'text/html');
+
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+});
+
 const httpServer = app.listen({ port }, () => {
-  logger.info(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  logger.info(`🚀 Server ready on port ${port}`);
 });
 
 const subscriptionServer = new SubscriptionServer(

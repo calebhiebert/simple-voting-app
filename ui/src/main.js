@@ -7,6 +7,7 @@ import VeeValidate from 'vee-validate';
 import { createProvider } from './vue-apollo';
 
 import 'spectre.css/dist/spectre.min.css';
+import 'spectre.css/dist/spectre-exp.min.css';
 import 'spectre.css/dist/spectre-icons.min.css';
 
 store.dispatch('loadSettings');

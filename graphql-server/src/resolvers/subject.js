@@ -39,6 +39,9 @@ module.exports.createSubject = async (root, args, context, info) => {
     subjectId: subject.id,
   });
 
+  // Clear the cache just incase a null value was cache previously
+  dl.subjectById.clear(subject.id);
+
   pubsub.pubsub.publish(pubsub.SUBJECT_CHANGED, { subjectChanged: subject });
   return subject;
 };
