@@ -31,7 +31,7 @@ services:
       - "traefik.frontend.headers.frameDeny=true"
       - "traefik.frontend.headers.contentTypeNosniff=true"
       - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentSecurityPolicy=frame-ancestors 'none'; default-src https:; object-src 'none'; img-src * data:; script-src 'self' cdn.auth0.com; style-src 'self' 'unsafe-inline'"
+      - "traefik.frontend.headers.contentSecurityPolicy=frame-ancestors 'none'; default-src https:; connect-src wss: https:; object-src 'none'; img-src * data:; script-src 'self' cdn.auth0.com; style-src 'self' 'unsafe-inline'"
 networks:
   default:
     external:

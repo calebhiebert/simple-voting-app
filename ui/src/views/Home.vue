@@ -11,7 +11,7 @@
         <transition-group name="list-change" v-if="sortedSubjects">
           <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
         </transition-group>
-        <div>
+        <div v-else>
           <main-page-vote-view-placeholder class="mt-2" v-for="pid of placeholderIds" :key="pid"></main-page-vote-view-placeholder>
         </div>
       </div>

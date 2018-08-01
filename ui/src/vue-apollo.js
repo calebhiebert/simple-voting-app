@@ -20,7 +20,10 @@ const defaultOptions = {
   httpEndpoint,
   // You can use `wss` for secure connection (recommended in production)
   // Use `null` to disable subscriptions
-  wsEndpoint: process.env.NODE_ENV === 'production' ? `ws://${location.host}/graphql` : 'ws://localhost:4000/graphql',
+  wsEndpoint:
+    process.env.NODE_ENV === 'production'
+      ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/graphql`
+      : 'ws://localhost:4000/graphql',
   // LocalStorage token
   tokenName: AUTH_TOKEN,
   // Enable Automatic Query persisting with Apollo Engine

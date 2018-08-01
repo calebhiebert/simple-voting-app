@@ -2,3 +2,4 @@ ui/node_modules
 graphql-server/node_modules
 **dist
 *.db
+graphql-server/.env

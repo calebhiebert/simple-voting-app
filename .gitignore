@@ -18,3 +18,4 @@ voter
 postgres
 *.db
 .env
+yarn-error.log
