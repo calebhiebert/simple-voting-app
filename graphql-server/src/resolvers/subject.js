@@ -39,6 +39,8 @@ module.exports.createSubject = async (root, args, context, info) => {
     subjectId: subject.id,
   });
 
+  dl.subjectHistoryBySubjectId.prime(subject.id, [history]);
+
   // Clear the cache just incase a null value was cache previously
   dl.subjectById.clear(subject.id);
 
@@ -90,6 +92,7 @@ module.exports.deleteSubject = async (root, args, context, info) => {
   dl.subjectById.clear(subject.id);
   dl.voteBySubjectId.clear(subject.id);
   dl.voteCountBySubjectId.clear(subject.id);
+  dl.subjectHistoryBySubjectId.clear(subject.id);
 
   return true;
 };
@@ -120,6 +123,7 @@ module.exports.updateSubject = async (root, args, context, info) => {
 
   // Clear dataloader cache
   dl.subjectById.clearAll();
+  dl.subjectHistoryBySubjectId.clearAll();
 
   pubsub.pubsub.publish(pubsub.SUBJECT_CHANGED, { subjectChanged: subject });
   return subject;
@@ -137,11 +141,5 @@ module.exports.voteResolver = async (root, args, context, info) => {
 };
 
 module.exports.historyResolver = async (root, args, context, info) => {
-  const history = await db.subject_history.findAll({
-    where: {
-      subjectId: { [db.Op.eq]: root.id },
-    },
-  });
-
-  return history;
+  return dl.subjectHistoryBySubjectId.load(root.id);
 };

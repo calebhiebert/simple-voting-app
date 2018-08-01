@@ -8,8 +8,12 @@
     </div>
     <div class="columns">
       <div class="column col-10 col-sm-11 col-mx-auto">
-        <transition-group name="list-change" v-if="sortedSubjects">
-          <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of sortedSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
+        <div class="has-icon-right">
+          <input type="text" class="form-input" placeholder="Search" v-model="searchQuery">
+          <i class="form-icon icon icon-search"></i>
+        </div>
+        <transition-group name="list-change" v-if="filteredSubjects">
+          <main-page-vote-view @selected="detailSubject(subject)" class="mt-2" v-for="subject of filteredSubjects" :votedFor="votedFor ? subject.id === votedFor.id : false" :name="subject.personName" :costume="subject.costumeDescription" :key="subject.id" :votePercent="subject.voteCount / totalVotes"></main-page-vote-view>
         </transition-group>
         <div v-else>
           <main-page-vote-view-placeholder class="mt-2" v-for="pid of placeholderIds" :key="pid"></main-page-vote-view-placeholder>
@@ -67,7 +71,19 @@ export default {
   },
 
   data () {
-    return { lang };
+    return { lang, searchQuery: '' };
+  },
+
+  destroyed () {
+    localStorage.setItem('home-scroll', document.documentElement.scrollTop);
+  },
+
+  mounted () {
+    const scrollPos = localStorage.getItem('home-scroll');
+
+    if (scrollPos !== null) {
+      document.documentElement.scrollTop = parseInt(scrollPos);
+    }
   },
 
   computed: {
@@ -84,6 +100,19 @@ export default {
         });
       } else {
         return null;
+      }
+    },
+
+    filteredSubjects () {
+      if (this.searchQuery.trim() !== '') {
+        return this.sortedSubjects.filter((ss) => {
+          return (
+            ss.personName.toLowerCase().indexOf(this.searchQuery.toLowerCase()) !== -1 ||
+            ss.costumeDescription.toLowerCase().indexOf(this.searchQuery.toLowerCase()) !== -1
+          );
+        });
+      } else {
+        return this.sortedSubjects;
       }
     },
 

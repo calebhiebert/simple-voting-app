@@ -12,7 +12,7 @@
         </div>
       </div>
     </transition>
-    <button class="btn btn-sm mt-2 ml-2 absolute" @click="showSettings">
+    <button class="btn btn-link mt-2 ml-2 absolute" @click="showSettings">
       <i class="icon icon-more-vert"></i>
     </button>
     <div class="toast toast-warning text-center top" v-if="isBanned">
@@ -20,8 +20,8 @@
       <br/>
       {{ lang.banNotice }}
     </div>
-    <transition name="fade-virt" mode="out-in">
-    <router-view style="position: absolute; z-index: -1;"/>
+    <transition name="shrink" mode="out-in">
+      <router-view style="position: absolute; z-index: -1;"/>
     </transition>
   </div>
 </template>
@@ -47,6 +47,17 @@
 .fade-virt-leave-active {
   opacity: 0;
   transform: translateY(10px);
+}
+
+.shrink-enter-active,
+.shrink-leave-active {
+  transition: all 125ms ease;
+}
+
+.shrink-enter,
+.shrink-leave-active {
+  opacity: 0;
+  transform: scale(0.975, 0.975);
 }
 
 .fade-virt-rev-enter-active,

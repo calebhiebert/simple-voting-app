@@ -54,7 +54,7 @@
 
       <!-- Votes view -->
       <div class="column col-6 col-sm-10 col-mx-auto edit-history">
-        <h4 class="badge" :data-badge="subject.voteCount">Votes</h4>
+        <h4 :class="{badge: subject.voteCount > 0}" :data-badge="subject.voteCount">Votes</h4>
         <votes :subject-id="subject.id"></votes>
       </div>
 

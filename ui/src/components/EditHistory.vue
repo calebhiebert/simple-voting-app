@@ -15,7 +15,7 @@
     </transition-group>
 
   </div>
-  <div class="loading loading-lg" v-else-if="$apollo.loading"></div>
+  <div class="loading" v-else-if="$apollo.loading"></div>
 </template>
 
 <style scoped>
@@ -41,17 +41,17 @@ export default {
     },
   },
 
-  data() {
+  data () {
     return {
       reverting: false,
     };
   },
 
   apollo: {
-    subject() {
+    subject () {
       return {
         query: EDIT_HISTORY_QUERY,
-        variables() {
+        variables () {
           return {
             id: this.subjectId,
           };
@@ -62,20 +62,20 @@ export default {
 
   methods: {
     distanceInWordsToNow,
-    getAvatarUrl(name) {
+    getAvatarUrl (name) {
       return avatarURL(name);
     },
   },
 
   computed: {
-    history() {
+    history () {
       if (this.subject) {
         return this.subject.history;
       } else {
         return null;
       }
     },
-    sortedHistory() {
+    sortedHistory () {
       if (this.history) {
         return this.history.slice(0).sort((a, b) => {
           if (a.createdAt < b.createdAt) {

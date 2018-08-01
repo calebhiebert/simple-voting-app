@@ -44,6 +44,7 @@
       <!-- Votes view -->
       <div class="column col-6 col-sm-10 col-mx-auto edit-history text-secondary">
         <h4>Votes</h4>
+        <div class="loading low-opacity"></div>
       </div>
 
       <!-- Edit History View -->

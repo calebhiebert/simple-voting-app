@@ -1,7 +1,7 @@
 <template>
   <div v-if="votes !== null">
-    <div v-if="votes.length === 0">
-      <p>No votes here :(</p>
+    <div class="text-gray" v-if="votes.length === 0">
+      No Votes 😞
     </div>
     <transition-group name="fade-virt-rev">
       <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
@@ -16,7 +16,7 @@
       </div>
     </transition-group>
   </div>
-  <div class="loading loading-lg" v-else-if="$apollo.loading">
+  <div class="loading" v-else-if="$apollo.loading">
 
   </div>
 </template>

@@ -8,7 +8,7 @@
       <input class="form-input" name="costume" v-validate="{required: true, max: 255, min: 3}" placeholder="Costume" v-model.trim="costumeDescription">
       <p class="form-input-hint" v-if="errors.has('costume')">{{ errors.first('costume') }}</p>
     </div>
-    <button class="btn" @click="$emit('close')">Cancel</button>
+    <button class="btn" type="button" @click="$emit('close')">Cancel</button>
     <button class="btn btn-primary" :class="{loading: saving}">Update</button>
   </form>
 </template>
