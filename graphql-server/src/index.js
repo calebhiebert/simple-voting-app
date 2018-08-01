@@ -10,6 +10,7 @@ const cors = require('cors');
 const schemaString = require('fs').readFileSync(require('path').join(__dirname, '..', 'schema.gql'), {
   encoding: 'utf8',
 });
+const dataloaders = require('./dataloader');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -32,6 +33,7 @@ const server = new ApolloServer({
     return {
       user: req.user,
       pubsub,
+      dl: dataloaders(),
     };
   },
 });

@@ -26,9 +26,23 @@ Vue.use(VueMq, {
 
 Vue.use(VeeValidate, { events: '' });
 
-const apolloProvider = createProvider({
-  connectToDevTools: true,
-});
+const apolloProvider = createProvider(
+  {
+    connectToDevTools: true,
+  },
+  (error) => {
+    if (error.networkError) {
+      switch (error.networkError.statusCode) {
+        case 403:
+          router.push({ name: 'login' });
+          break;
+        default:
+          console.log(error.networkError);
+          break;
+      }
+    }
+  },
+);
 
 new Vue({
   router,

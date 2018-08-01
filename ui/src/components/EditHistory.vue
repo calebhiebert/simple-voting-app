@@ -29,7 +29,7 @@ p {
 <script>
 import { distanceInWordsToNow } from 'date-fns';
 import { EDIT_HISTORY_QUERY } from '../queries';
-import api from '@/api';
+import { avatarURL } from '@/api';
 
 export default {
   props: {
@@ -61,7 +61,7 @@ export default {
   methods: {
     distanceInWordsToNow,
     getAvatarUrl (name) {
-      return api.avatarURL(name);
+      return avatarURL(name);
     },
   },
 

@@ -6,7 +6,7 @@ const pino = require('pino');
 const logger = pino({ name: 'user-resolvers', level: 'debug' });
 
 module.exports.genericGetUser = (rootOrArgs, key) => {
-  return async (root, args, context, info) => {
+  return async (root, args, { dl }, info) => {
     let id;
 
     if (rootOrArgs === 'args') {
@@ -15,37 +15,29 @@ module.exports.genericGetUser = (rootOrArgs, key) => {
       id = root[key];
     }
 
-    const user = await db.user.findOne({
-      where: {
-        id: { [db.Op.eq]: id },
-      },
-    });
+    const user = await dl.userById.load(id);
 
     return user;
   };
 };
 
-module.exports.updateUser = async (root, args, context, info) => {
-  if (!context.user || context.user.banned || !context.user.admin) {
+module.exports.updateUser = async (root, args, { user, dl }, info) => {
+  if (!user || user.banned || !user.admin) {
     throw new AuthenticationError();
   }
 
-  const user = await db.user.findOne({
+  const dbUser = await db.user.findOne({
     where: {
       id: { [db.Op.eq]: args.input.id },
     },
   });
 
-  logger.debug(JSON.parse(JSON.stringify(user)));
-
-  if (user === null) {
+  if (dbUser === null) {
     throw new NotFoundError();
   }
 
-  logger.debug(args.input);
-
-  await user.update(args.input);
-  return user;
+  await dbUser.update(args.input);
+  return dbUser;
 };
 
 module.exports.getCurrentUser = (root, args, context, info) => {

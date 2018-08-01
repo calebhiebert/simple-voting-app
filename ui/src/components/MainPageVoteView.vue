@@ -43,7 +43,7 @@
 </style>
 
 <script>
-import api from '@/api';
+import { avatarURL } from '@/api';
 
 export default {
   props: {
@@ -71,7 +71,7 @@ export default {
       return this.votePercent * 100 + '%';
     },
     avatarUrl () {
-      return api.avatarURL(this.name);
+      return avatarURL(this.name);
     },
   },
 };

@@ -115,7 +115,7 @@ h1 {
 </style>
 
 <script>
-import api from '@/api';
+import { avatarURL } from '@/api';
 import lang from '@/lang.json';
 import gql from 'graphql-tag';
 import {
@@ -139,7 +139,7 @@ export default {
     Modal,
   },
 
-  data() {
+  data () {
     return {
       lang,
       editing: false,
@@ -150,11 +150,11 @@ export default {
 
   apollo: {
     user: GET_ME_QUERY,
-    subject() {
+    subject () {
       return {
         query: GET_SUBJECT_BASIC_QUERY,
 
-        variables() {
+        variables () {
           return {
             id: this.$route.params.id,
           };
@@ -171,15 +171,15 @@ export default {
   },
 
   computed: {
-    avatarUrl() {
-      return api.avatarURL(this.subject.personName);
+    avatarUrl () {
+      return avatarURL(this.subject.personName);
     },
 
-    isMobile() {
+    isMobile () {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
-    isVotedFor() {
+    isVotedFor () {
       if (this.votedFor && this.subject) {
         return this.votedFor.id === this.subject.id;
       } else {
@@ -187,34 +187,34 @@ export default {
       }
     },
 
-    isBanned() {
+    isBanned () {
       return this.user ? this.user.banned : false;
     },
 
-    isAdmin() {
+    isAdmin () {
       return this.user ? this.user.admin : false;
     },
 
     editHistoryVisible: {
-      get() {
+      get () {
         return this.$store.state.settings.editHistoryVisible;
       },
-      set(value) {
+      set (value) {
         this.$store.commit('setting', { setting: 'editHistoryVisible', value });
       },
     },
   },
 
   methods: {
-    edit() {
+    edit () {
       this.editing = true;
     },
 
-    toggleEditHistory() {
+    toggleEditHistory () {
       this.editHistoryVisible = !this.editHistoryVisible;
     },
 
-    vote(subjId) {
+    vote (subjId) {
       this.voting = true;
       this.$apollo
         .mutate({
@@ -262,7 +262,7 @@ export default {
         });
     },
 
-    deleteSubject() {
+    deleteSubject () {
       this.$apollo
         .mutate({
           mutation: DELETE_SUBJECT_MUTATION,

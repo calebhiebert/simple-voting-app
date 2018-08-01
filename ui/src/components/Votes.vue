@@ -30,7 +30,7 @@ p {
 </style>
 
 <script>
-import api from '@/api';
+import { avatarURL } from '@/api';
 import { distanceInWordsToNow } from 'date-fns';
 import gql from 'graphql-tag';
 
@@ -45,7 +45,7 @@ export default {
   methods: {
     distanceInWordsToNow,
     getAvatarUrl (name) {
-      return api.avatarURL(name);
+      return avatarURL(name);
     },
   },
 

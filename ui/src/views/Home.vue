@@ -37,7 +37,7 @@
 
 <script>
 import lang from '@/lang.json';
-import { VOTE_CAST_SUBSCRIPTION, GET_ME_QUERY, VOTED_FOR_QUERY, GET_ALL_SUBJECTS } from '../queries';
+import { VOTE_CAST_SUBSCRIPTION, GET_ME_QUERY, VOTED_FOR_QUERY, GET_ALL_SUBJECTS_QUERY } from '../queries';
 
 import MainPageVoteView from '@/components/MainPageVoteView.vue';
 import Modal from '@/components/Modal.vue';
@@ -53,7 +53,7 @@ export default {
 
   apollo: {
     subjects: {
-      query: GET_ALL_SUBJECTS,
+      query: GET_ALL_SUBJECTS_QUERY,
       subscribeToMore: {
         document: VOTE_CAST_SUBSCRIPTION,
       },

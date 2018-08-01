@@ -47,7 +47,7 @@ const defaultOptions = {
 };
 
 // Call this in the Vue app file
-export function createProvider (options = {}) {
+export function createProvider (options = {}, onError) {
   // Create apollo client
   const { apolloClient, wsClient } = createApolloClient({
     ...defaultOptions,
@@ -72,7 +72,10 @@ export function createProvider (options = {}) {
         error.name,
         error.graphQLErrors,
       );
-      console.trace();
+
+      if (onError) {
+        onError(error);
+      }
     },
   });
 

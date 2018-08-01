@@ -5,14 +5,8 @@ const pubsub = require('../pubsub');
 const logger = require('pino')({ name: 'create-subject', level: 'debug' });
 
 module.exports.genericSubjectResolver = (rootKey) => {
-  return async (root, args, context, info) => {
-    const subject = await db.subject.findOne({
-      where: {
-        id: { [db.Op.eq]: root[rootKey] },
-      },
-    });
-
-    return subject;
+  return async (root, args, { dl }, info) => {
+    return dl.subjectById.load(root[rootKey]);
   };
 };
 
@@ -22,12 +16,8 @@ module.exports.subjectChangedResolver = {
   },
 };
 
-module.exports.getSubject = async (root, args, context, info) => {
-  const subject = await db.subject.findOne({
-    where: {
-      id: { [db.Op.eq]: args.id },
-    },
-  });
+module.exports.getSubject = async (root, args, { dl }, info) => {
+  const subject = await dl.subjectById.load(args.id);
 
   if (subject === null) {
     throw new NotFoundError();
