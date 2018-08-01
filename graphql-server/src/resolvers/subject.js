@@ -102,7 +102,7 @@ module.exports.updateSubject = async (root, args, context, info) => {
   });
 
   await subject.update(args.input);
-  context.pubsub.publish(pubsub.SUBJECT_CHANGED, { subjectChanged: subject });
+  pubsub.pubsub.publish(pubsub.SUBJECT_CHANGED, { subjectChanged: subject });
   return subject;
 };
 

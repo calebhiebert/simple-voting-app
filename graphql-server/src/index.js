@@ -47,7 +47,18 @@ const httpServer = app.listen({ port }, () => {
 const subscriptionServer = new SubscriptionServer(
   {
     schema: server.schema,
-    execute: graphql.execute,
+    execute: (schema, document, rootValue, contextValue, variableValues, operationName, fieldResolver) => {
+      console.log('EXECUTING');
+      return graphql.execute(
+        schema,
+        document,
+        rootValue,
+        { dl: dataloaders() },
+        variableValues,
+        operationName,
+        fieldResolver,
+      );
+    },
     subscribe: graphql.subscribe,
   },
   {

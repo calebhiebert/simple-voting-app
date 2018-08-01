@@ -173,3 +173,32 @@ export const VOTE_CAST_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const SUBJECT_CHANGED_SUBSCRIPTION = gql`
+  subscription SubjectChanged($id: ID!) {
+    subjectChanged(id: $id) {
+      id
+      personName
+      costumeDescription
+      votes {
+        id
+        voter {
+          id
+          name
+        }
+        updatedAt
+      }
+      history {
+        id
+        personName
+        costumeDescription
+        editor {
+          id
+          name
+        }
+        createdAt
+      }
+      voteCount
+    }
+  }
+`;

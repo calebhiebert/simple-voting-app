@@ -124,6 +124,7 @@ import {
   VOTE_MUTATION,
   DELETE_SUBJECT_MUTATION,
   GET_SUBJECT_BASIC_QUERY,
+  SUBJECT_CHANGED_SUBSCRIPTION,
 } from '../queries';
 
 import SubjectEditForm from '@/components/SubjectEditForm.vue';
@@ -139,7 +140,7 @@ export default {
     Modal,
   },
 
-  data () {
+  data() {
     return {
       lang,
       editing: false,
@@ -150,11 +151,20 @@ export default {
 
   apollo: {
     user: GET_ME_QUERY,
-    subject () {
+    subject() {
       return {
         query: GET_SUBJECT_BASIC_QUERY,
+        subscribeToMore: {
+          document: SUBJECT_CHANGED_SUBSCRIPTION,
+          variables: {
+            id: this.$route.params.id,
+          },
+          updateQuery(previous, { subscriptionData }) {
+            console.log(previous, subscriptionData);
+          },
+        },
 
-        variables () {
+        variables() {
           return {
             id: this.$route.params.id,
           };
@@ -171,15 +181,15 @@ export default {
   },
 
   computed: {
-    avatarUrl () {
+    avatarUrl() {
       return avatarURL(this.subject.personName);
     },
 
-    isMobile () {
+    isMobile() {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
-    isVotedFor () {
+    isVotedFor() {
       if (this.votedFor && this.subject) {
         return this.votedFor.id === this.subject.id;
       } else {
@@ -187,34 +197,34 @@ export default {
       }
     },
 
-    isBanned () {
+    isBanned() {
       return this.user ? this.user.banned : false;
     },
 
-    isAdmin () {
+    isAdmin() {
       return this.user ? this.user.admin : false;
     },
 
     editHistoryVisible: {
-      get () {
+      get() {
         return this.$store.state.settings.editHistoryVisible;
       },
-      set (value) {
+      set(value) {
         this.$store.commit('setting', { setting: 'editHistoryVisible', value });
       },
     },
   },
 
   methods: {
-    edit () {
+    edit() {
       this.editing = true;
     },
 
-    toggleEditHistory () {
+    toggleEditHistory() {
       this.editHistoryVisible = !this.editHistoryVisible;
     },
 
-    vote (subjId) {
+    vote(subjId) {
       this.voting = true;
       this.$apollo
         .mutate({
@@ -262,7 +272,7 @@ export default {
         });
     },
 
-    deleteSubject () {
+    deleteSubject() {
       this.$apollo
         .mutate({
           mutation: DELETE_SUBJECT_MUTATION,
