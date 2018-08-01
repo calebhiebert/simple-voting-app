@@ -14,6 +14,9 @@ services:
     restart: on-failure
     depends_on:
       - postgres
+    environment:
+      AUTH0_CLIENTID: ${AUTH0_CLIENTID}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
     labels:
       - "traefik.backend=be"
       - "traefik.docker.network=proxy"

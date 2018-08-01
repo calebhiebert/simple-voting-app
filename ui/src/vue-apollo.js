@@ -8,8 +8,6 @@ Vue.use(VueApollo);
 // Name of the localStorage item
 const AUTH_TOKEN = 'access-token';
 
-console.log('ENVIRONMENT', process.env.NODE_ENV);
-
 // Http endpoint
 const httpEndpoint =
   process.env.NODE_ENV === 'production'
