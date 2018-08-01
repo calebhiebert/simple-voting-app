@@ -1,0 +1,83 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+scalar Date
+
+type Query {
+  subjects: [Subject]!
+  subject(id: ID!): Subject!
+  votedFor: Subject
+  user: User
+  users: [User!]!
+}
+
+type Subscription {
+  subjectChanged(id: ID!): Subject!
+  voteCast: [Subject!]!
+}
+
+type Mutation {
+  createSubject(input: SubjectCreation!): Subject!
+  updateSubject(input: SubjectMutation!): Subject!
+  deleteSubject(id: ID!): Boolean!
+  updateUser(input: UserMutation!): User!
+  vote(subjectId: ID!): Vote!
+}
+
+type Subject {
+  id: ID!
+  personName: String!
+  costumeDescription: String!
+  votes: [Vote!]!
+  voteCount: Int!
+  history: [SubjectHistory!]!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type SubjectHistory {
+  id: ID!
+  editor: User!
+  personName: String!
+  costumeDescription: String!
+  subject: Subject!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type User {
+  id: ID!
+  name: String!
+  banned: Boolean!
+  admin: Boolean!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type Vote {
+  id: ID!
+  voter: User!
+  subject: Subject!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+input SubjectCreation {
+  personName: String!
+  costumeDescription: String!
+}
+
+input SubjectMutation {
+  id: ID!
+  personName: String!
+  costumeDescription: String!
+}
+
+input UserMutation {
+  id: ID!
+  name: String!
+  banned: Boolean!
+}

@@ -18,10 +18,12 @@
         <i class="form-icon"></i> Show a notification after my votes are submitted
       </label>
     </div>
-    <button class="btn" v-if="$store.getters.isAdmin" @click="$router.push({name: 'users'})">Users</button>
+    <button class="btn" v-if="isAdmin" @click="$router.push({name: 'users'})">Users</button>
   </div>
 </template>
 <script>
+import { GET_ME_QUERY } from '../queries';
+
 const makeSettingGetSet = (settingName) => {
   return {
     get () {
@@ -39,6 +41,13 @@ export default {
     autoVoteOnClick: makeSettingGetSet('autoVoteOnClick'),
     editHistoryVisible: makeSettingGetSet('editHistoryVisible'),
     showVotedNotification: makeSettingGetSet('showVotedNotification'),
+    isAdmin () {
+      return this.user ? this.user.admin : false;
+    },
+  },
+
+  apollo: {
+    user: GET_ME_QUERY,
   },
 };
 </script>

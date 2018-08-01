@@ -37,7 +37,20 @@ button {
 </style>
 
 <script>
-import api from '@/api';
+import gql from 'graphql-tag';
+import { CREATE_SUBJECT_MUTATION } from '../queries';
+
+const SUBJECTS_QUERY = gql`
+  query GetSubjects {
+    subjects {
+      id
+      personName
+      costumeDescription
+      voteCount
+    }
+  }
+`;
+
 export default {
   data () {
     return {
@@ -54,13 +67,20 @@ export default {
       this.$validator.validate().then((valid) => {
         if (valid) {
           this.saving = true;
-          api
-            .createSubject(this.personName, this.costumeDescription)
-            .then((result) => {
-              return api.getSubjects().then((subjects) => {
-                this.$store.commit('setSubjects', subjects);
-                return result;
-              });
+          this.$apollo
+            .mutate({
+              mutation: CREATE_SUBJECT_MUTATION,
+              variables: {
+                subject: {
+                  personName: this.personName,
+                  costumeDescription: this.costumeDescription,
+                },
+              },
+              update: (store, { data: { createSubject } }) => {
+                const data = store.readQuery({ query: SUBJECTS_QUERY });
+                data.subjects.push(createSubject);
+                store.writeQuery({ query: SUBJECTS_QUERY, data });
+              },
             })
             .then((result) => {
               this.$router.replace({ name: 'home' });

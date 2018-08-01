@@ -2,7 +2,8 @@
 <div class="container">
   <div class="columns">
     <div class="column col-10 col-sm-12 col-mx-auto">
-      <subject-view :subject="subject" v-if="subject"></subject-view>
+      <subject-view :status="status" v-show="status.loaded === true"></subject-view>
+      <subject-view-placeholder v-if="status.loaded === false"></subject-view-placeholder>
     </div>
   </div>
 </div>
@@ -16,25 +17,20 @@
 
 <script>
 import SubjectView from '@/components/SubjectView.vue';
-import api from '@/api';
+import SubjectViewPlaceholder from '@/components/SubjectViewPlaceholder.vue';
 
 export default {
   components: {
     SubjectView,
+    SubjectViewPlaceholder,
   },
 
-  created () {
-    if (this.subject === null) {
-      api.getSubject(this.$route.params.id).then((subject) => {
-        this.$store.commit('setSubject', subject);
-      });
-    }
-  },
-
-  computed: {
-    subject () {
-      return this.$store.state.subject;
-    },
+  data () {
+    return {
+      status: {
+        loaded: false,
+      },
+    };
   },
 };
 </script>

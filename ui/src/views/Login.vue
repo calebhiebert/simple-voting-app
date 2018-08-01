@@ -22,12 +22,18 @@
 
 <script>
 import { getLock } from '@/auth';
-import api from '@/api';
 import axios from 'axios';
 
 export default {
   created () {
     const lock = getLock();
+
+    lock.on('authenticated', (authResult) => {
+      localStorage.setItem('access-token', authResult.accessToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${authResult.accessToken}`;
+      this.$router.replace({ name: 'home' });
+      lock.hide();
+    });
 
     if (location.hash === '') {
       lock.show();
@@ -39,11 +45,7 @@ export default {
         } else {
           localStorage.setItem('access-token', result.accessToken);
           axios.defaults.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
-
-          api.getMe().then((me) => {
-            this.$store.commit('setMe', me);
-            this.$router.replace({ name: 'home' });
-          });
+          this.$router.replace({ name: 'home' });
         }
       });
     }

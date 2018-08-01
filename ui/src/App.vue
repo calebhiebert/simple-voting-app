@@ -15,7 +15,7 @@
     <button class="btn btn-sm mt-2 ml-2 absolute" @click="showSettings">
       <i class="icon icon-more-vert"></i>
     </button>
-    <div class="toast toast-warning text-center top" v-if="$store.state.me && $store.getters.isBanned">
+    <div class="toast toast-warning text-center top" v-if="isBanned">
       <strong>Warning</strong>
       <br/>
       {{ lang.banNotice }}
@@ -63,6 +63,7 @@
 </style>
 <script>
 import lang from '@/lang.json';
+import { GET_ME_QUERY } from '@/queries';
 
 import Modal from './components/Modal';
 import Settings from './components/Settings';
@@ -83,9 +84,20 @@ export default {
     },
   },
 
+  apollo: {
+    user: GET_ME_QUERY,
+  },
+
   computed: {
     isMobile () {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
+    },
+    isBanned () {
+      if (this.user) {
+        return this.user.banned;
+      } else {
+        return false;
+      }
     },
   },
 };

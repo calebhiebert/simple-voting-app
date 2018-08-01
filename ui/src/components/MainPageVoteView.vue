@@ -8,7 +8,8 @@
           </figure>
         </div>
         <div class="tile-content">
-          <p class="tile-title">{{ name }} ({{costume}})</p>
+          <div class="tile-title">{{ name }}</div>
+          <div class="costume-description text-gray">{{ costume }}</div>
           <div class="bar bar-sm">
             <div class="bar-item" role="progressbar" :style="{width: barWidth}" :aria-valuenow="votePercent * 100" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
@@ -24,6 +25,11 @@
   cursor: pointer;
 }
 
+.costume-description {
+  margin-top: -0.2rem;
+  margin-bottom: 0.2rem;
+}
+
 .hov:hover {
   background-color: rgba(0, 0, 0, 0.116);
 }
@@ -36,10 +42,14 @@
   background-color: #5755d917;
   /* border: 1px solid #5755d9; */
 }
+
+.bar-item {
+  transition: width 0.35s;
+}
 </style>
 
 <script>
-import api from '@/api';
+import { avatarURL } from '@/api';
 
 export default {
   props: {
@@ -67,7 +77,7 @@ export default {
       return this.votePercent * 100 + '%';
     },
     avatarUrl () {
-      return api.avatarURL(this.name, 48);
+      return avatarURL(this.name);
     },
   },
 };

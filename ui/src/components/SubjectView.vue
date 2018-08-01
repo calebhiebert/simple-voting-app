@@ -1,14 +1,14 @@
 <template>
-  <div class="clearfix">
+  <div class="clearfix" v-if="subject">
     <div class="columns col-gapless">
       <!-- Navigation/Vote buttons for desktop -->
-      <div class="column col-1 col-lg-2 col-sm-3 min-90" :class="{'voted-for': votedFor}" v-if="!isMobile">
+      <div class="column col-1 col-lg-2 col-sm-3 min-90" :class="{'voted-for': isVotedFor}" v-if="!isMobile">
         <div class="btn-group">
           <button class="btn btn-sm" @click="$router.push({name: 'home'})">
             <i class="icon icon-arrow-left"></i>
           </button>
-          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote" v-if="!votedFor && !$store.getters.isBanned">Vote</button>
-          <button class="btn btn-sm btn-success" v-else-if="!$store.getters.isBanned">
+          <button class="btn btn-sm btn-primary" :class="{'loading': voting}" @click="vote()" v-if="!isVotedFor && !isBanned">Vote</button>
+          <button class="btn btn-sm btn-success" v-else-if="!isBanned">
             <i class="icon icon-check"></i> Voted
           </button>
         </div>
@@ -22,7 +22,7 @@
       </div>
 
       <!-- Name/Costume View -->
-      <div class="column col-5 col-sm-12" :class="{'col-mx-auto': isMobile}" v-if="!editing">
+      <div class="column col-5 col-md-7 col-sm-12" :class="{'col-mx-auto': isMobile}" v-if="!editing">
         <div class="text-center show-sm">
           <h1>{{ subject.personName }}</h1>
           <h4 class="text-gray">{{ subject.costumeDescription }}</h4>
@@ -35,16 +35,7 @@
 
       <!-- Name/Costume Edit Form -->
       <div class="column col-sm-12 col-mx-auto edit-form" v-else>
-        <div class="form-group" :class="{'has-error': errors.has('person_name')}">
-          <input class="form-input input-lg" data-vv-as="name" v-validate="{required: true, max: 255, min: 3}" name="person_name" placeholder="Name" v-model.trim="eName">
-          <p class="form-input-hint" v-if="errors.has('person_name')">{{ errors.first('person_name') }}</p>
-        </div>
-        <div class="form-group" :class="{'has-error': errors.has('costume')}">
-          <input class="form-input" name="costume" v-validate="{required: true, max: 255, min: 3}" placeholder="Costume" v-model.trim="eCostume">
-          <p class="form-input-hint" v-if="errors.has('costume')">{{ errors.first('costume') }}</p>
-        </div>
-        <button class="btn" @click="editing = false">Cancel</button>
-        <button class="btn btn-primary" @click="update" :class="{loading: saving}">Update</button>
+        <subject-edit-form :subject-id="subject.id" @close="editing = false"></subject-edit-form>
       </div>
 
       <!-- Nagivation/Vote buttons for mobile -->
@@ -52,8 +43,8 @@
         <button class="btn" @click="$router.push({name: 'home'})">
           <i class="icon icon-arrow-left"></i>
         </button>
-        <button class="btn btn-primary" v-if="!votedFor && !$store.getters.isBanned" :class="{'loading': voting}" @click="vote">Vote</button>
-        <button class="btn btn-success" v-else-if="!$store.getters.isBanned">
+        <button class="btn btn-primary" v-if="!isVotedFor && !isBanned" :class="{'loading': voting}" @click="vote()">Vote</button>
+        <button class="btn btn-success" v-else-if="!isBanned">
           <i class="icon icon-check"></i> Voted
         </button>
       </div>
@@ -62,9 +53,9 @@
     <div class="columns">
 
       <!-- Votes view -->
-      <div class="column col-6 col-sm-10 col-mx-auto edit-history" v-if="subject.votes">
-        <h4 class="badge" :data-badge="subject.votes.length">Votes</h4>
-        <votes :votes="subject.votes"></votes>
+      <div class="column col-6 col-sm-10 col-mx-auto edit-history">
+        <h4 class="badge" :data-badge="subject.voteCount">Votes</h4>
+        <votes :subject-id="subject.id"></votes>
       </div>
 
       <!-- Edit History View -->
@@ -74,13 +65,19 @@
         </button>
         <h4>Edit History</h4>
         <transition name="fade-virt-rev">
-          <edit-history :history="subject.history" v-if="subject && editHistoryVisible"></edit-history>
+          <edit-history :subject-id="subject.id" v-if="subject && editHistoryVisible"></edit-history>
         </transition>
       </div>
     </div>
     <div class="divider"></div>
-    <p class="text-center" v-if="!$store.getters.isBanned">{{ lang.editNotice }} <a @click="edit">{{ lang.editText }}</a></p>
-    <p class="text-center" v-if="$store.getters.isAdmin"><a @click="deleteSubject">delete</a></p>
+    <p class="text-center" v-if="!isBanned">{{ lang.editNotice }} <a @click="edit">{{ lang.editText }}</a></p>
+    <p class="text-center" v-if="isAdmin"><a @click="deleteSubject">delete</a></p>
+  </div>
+  <div v-else-if="notFound">
+    <div class="toast toast-warning">
+      <h3>404</h3>
+      This person doesn't exist any more :(
+    </div>
   </div>
 </template>
 
@@ -109,20 +106,9 @@ h1 {
   width: 75px;
 }
 
-.edit-form {
-  margin-bottom: 1rem;
-}
-
 @media screen and (max-width: 600px) {
   .edit-history {
     margin-top: 1rem;
-  }
-
-  .edit-form {
-    padding-right: 1rem;
-    padding-left: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
   }
 }
 
@@ -134,42 +120,36 @@ h1 {
 </style>
 
 <script>
-import api from '@/api';
+import { avatarURL } from '@/api';
 import lang from '@/lang.json';
+import gql from 'graphql-tag';
+import {
+  GET_ME_QUERY,
+  VOTED_FOR_QUERY,
+  VOTE_MUTATION,
+  DELETE_SUBJECT_MUTATION,
+  GET_SUBJECT_BASIC_QUERY,
+  SUBJECT_CHANGED_SUBSCRIPTION,
+} from '../queries';
 
+import SubjectEditForm from '@/components/SubjectEditForm.vue';
 import EditHistory from '@/components/EditHistory.vue';
 import Votes from '@/components/Votes.vue';
 import Modal from '@/components/Modal.vue';
 
 export default {
   components: {
+    SubjectEditForm,
     EditHistory,
     Votes,
     Modal,
   },
 
   props: {
-    subject: {
+    status: {
       type: Object,
       required: true,
-      default: null,
     },
-  },
-
-  mounted () {
-    if (this.subject.history === null) {
-      this.refresh();
-    }
-
-    if (this.$route.query.voted === true) {
-      if (this.$store.state.settings.showVotedNotification) {
-        this.$store.commit(
-          'toast',
-          'Your vote has been counted. Visit the settings menu in the top left corner to turn off auto voting',
-        );
-      }
-      this.$router.replace({ name: 'subject-view', params: { id: this.$route.params.id } });
-    }
   },
 
   data () {
@@ -178,34 +158,75 @@ export default {
       editing: false,
       saving: false,
       voting: false,
-      eName: '',
-      eCostume: '',
+      notFound: false,
     };
   },
 
-  watch: {
+  apollo: {
+    user: GET_ME_QUERY,
     subject () {
-      if (this.subject.history === null) {
-        this.refresh();
-      }
+      return {
+        query: GET_SUBJECT_BASIC_QUERY,
+        subscribeToMore: {
+          document: SUBJECT_CHANGED_SUBSCRIPTION,
+          variables: {
+            id: this.$route.params.id,
+          },
+          updateQuery (previous, { subscriptionData }) {
+            // console.log(previous, subscriptionData);
+          },
+        },
+
+        error (err) {
+          if (err.graphQLErrors.length > 0) {
+            if (err.graphQLErrors[0].extensions.code === 'NOT_FOUND') {
+              this.notFound = true;
+            }
+          }
+        },
+
+        variables () {
+          return {
+            id: this.$route.params.id,
+          };
+        },
+
+        result: (queryResult) => {
+          if (queryResult.data) {
+            this.status.loaded = true;
+          }
+          if (this.$route.query.doVote && queryResult.data && !this.isBanned) {
+            this.vote(queryResult.data.subject.id);
+          }
+        },
+      };
     },
+    votedFor: VOTED_FOR_QUERY,
   },
 
   computed: {
     avatarUrl () {
-      return api.avatarURL(this.subject.personName);
+      return avatarURL(this.subject.personName);
     },
 
     isMobile () {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
-    votedFor () {
-      if (this.$store.getters.votedFor) {
-        return this.subject.id === this.$store.getters.votedFor;
+    isVotedFor () {
+      if (this.votedFor && this.subject) {
+        return this.votedFor.id === this.subject.id;
       } else {
         return false;
       }
+    },
+
+    isBanned () {
+      return this.user ? this.user.banned : false;
+    },
+
+    isAdmin () {
+      return this.user ? this.user.admin : false;
     },
 
     editHistoryVisible: {
@@ -220,8 +241,6 @@ export default {
 
   methods: {
     edit () {
-      this.eName = this.subject.personName;
-      this.eCostume = this.subject.costumeDescription;
       this.editing = true;
     },
 
@@ -229,74 +248,71 @@ export default {
       this.editHistoryVisible = !this.editHistoryVisible;
     },
 
-    refresh () {
-      api.getSubject(this.subject.id).then((subject) => {
-        this.$store.commit('setSubject', { history: subject.history });
-      });
-    },
-
-    update () {
-      this.$validator.validate().then((valid) => {
-        if (valid) {
-          this.saving = true;
-          api
-            .updateSubject(this.subject.id, this.eName, this.eCostume)
-            .then((subject) => {
-              return api.getSubject(subject.id).then((subject) => {
-                this.$store.commit('setSubject', subject);
-                return subject;
-              });
-            })
-            .then((subject) => {
-              this.editing = false;
-              this.saving = false;
-            })
-            .catch(() => {
-              this.saving = false;
-              this.editing = false;
-            });
-        }
-      });
-    },
-
-    vote () {
-      if (!this.$store.state.subject.votes) {
-        this.$store.state.subject.votes = [];
-      }
-
-      const vote = {
-        id: -1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        deletedAt: null,
-        subjectId: this.subject.id,
-        voter: this.$store.state.me.userId,
-      };
-
-      this.$store.commit('patchSubjectVote', vote);
-
+    vote (subjId) {
       this.voting = true;
-      api
-        .vote(this.subject.id)
-        .then((vote) => {
-          return api.getSubject(this.subject.id).then((subject) => {
-            this.$store.commit('setSubject', subject);
-            return vote;
-          });
+      this.$apollo
+        .mutate({
+          mutation: VOTE_MUTATION,
+
+          variables: {
+            subjectId: subjId || this.subject.id,
+          },
+
+          update: (store, { data: { vote } }) => {
+            const subjectsQuery = gql`
+              query Subjects {
+                subjects {
+                  id
+                  voteCount
+                  votes {
+                    id
+                  }
+                }
+              }
+            `;
+
+            this.$apollo.query({
+              query: subjectsQuery,
+              fetchPolicy: 'network-only',
+            });
+
+            try {
+              const data = store.readQuery({ query: VOTED_FOR_QUERY });
+              data.votedFor.id = vote.subject.id;
+              store.writeQuery({ query: VOTED_FOR_QUERY, data });
+            } catch (err) {
+              this.$apollo.query({ query: VOTED_FOR_QUERY, fetchPolicy: 'network-only' });
+            }
+          },
         })
         .then((vote) => {
           this.voting = false;
+
+          if (this.$route.query.doVote) {
+            this.$router.replace({ name: this.$route.name });
+          }
+
+          if (this.$store.state.settings.showVotedNotification) {
+            this.$store.commit('toast', 'Your vote has been counted');
+          }
         })
         .catch((err) => {
           this.voting = false;
-          console.error(err);
         });
     },
 
     deleteSubject () {
-      api.deleteSubject(this.subject.id).then((subject) => {
-        this.$router.replace({ name: 'home' });
-      });
+      this.$apollo
+        .mutate({
+          mutation: DELETE_SUBJECT_MUTATION,
+
+          variables: {
+            id: this.subject.id,
+          },
+        })
+        .then(() => {
+          this.$router.replace({ name: 'home' });
+        });
     },
   },
 };
