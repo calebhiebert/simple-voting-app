@@ -6,7 +6,7 @@
     <div class="tile" v-for="vote of sortedVotes" :key="vote.id">
       <div class="tile-icon">
         <figure class="avatar">
-          <img :src="getAvatarUrl(vote.voter.name, 32)" alt="avatar">
+          <img :src="getAvatarUrl(vote.voter.name)" alt="avatar">
         </figure>
       </div>
       <div class="tile-content">
@@ -30,17 +30,11 @@ p {
 </style>
 
 <script>
-import UserName from '@/components/UserName.vue';
-
 import api from '@/api';
 import { distanceInWordsToNow } from 'date-fns';
 import gql from 'graphql-tag';
 
 export default {
-  components: {
-    UserName,
-  },
-
   props: {
     subjectId: {
       type: String,

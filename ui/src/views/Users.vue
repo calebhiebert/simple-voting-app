@@ -34,7 +34,7 @@
   </div>
 </template>
 <script>
-import gql from 'graphql-tag';
+import { GET_ME_QUERY, GET_USERS_QUERY, UPDATE_USER_MUTATION } from '../queries';
 
 export default {
   data () {
@@ -44,27 +44,8 @@ export default {
   },
 
   apollo: {
-    user: gql`
-      query GetMe {
-        user {
-          id
-          name
-          banned
-          admin
-        }
-      }
-    `,
-
-    users: gql`
-      query GetUsers {
-        users {
-          id
-          name
-          banned
-          admin
-        }
-      }
-    `,
+    user: GET_ME_QUERY,
+    users: GET_USERS_QUERY,
   },
 
   watch: {
@@ -78,17 +59,7 @@ export default {
   methods: {
     ban (user) {
       this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateUser($input: UserMutation!) {
-            updateUser(input: $input) {
-              id
-              name
-              banned
-              admin
-              updatedAt
-            }
-          }
-        `,
+        mutation: UPDATE_USER_MUTATION,
         variables: {
           input: {
             id: user.id,
@@ -101,17 +72,7 @@ export default {
 
     unban (user) {
       this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateUser($input: UserMutation!) {
-            updateUser(input: $input) {
-              id
-              name
-              banned
-              admin
-              updatedAt
-            }
-          }
-        `,
+        mutation: UPDATE_USER_MUTATION,
         variables: {
           input: {
             id: user.id,

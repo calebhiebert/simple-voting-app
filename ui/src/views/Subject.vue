@@ -16,7 +16,6 @@
 
 <script>
 import SubjectView from '@/components/SubjectView.vue';
-import api from '@/api';
 
 export default {
   components: {

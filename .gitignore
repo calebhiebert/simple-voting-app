@@ -17,3 +17,4 @@ voter
 *dist
 postgres
 *.db
+.env

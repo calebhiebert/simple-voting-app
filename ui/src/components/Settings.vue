@@ -22,7 +22,7 @@
   </div>
 </template>
 <script>
-import gql from 'graphql-tag';
+import { GET_ME_QUERY } from '../queries';
 
 const makeSettingGetSet = (settingName) => {
   return {
@@ -47,16 +47,7 @@ export default {
   },
 
   apollo: {
-    user: gql`
-      query GetMe {
-        user {
-          id
-          name
-          banned
-          admin
-        }
-      }
-    `,
+    user: GET_ME_QUERY,
   },
 };
 </script>

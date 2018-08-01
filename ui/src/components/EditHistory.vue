@@ -3,16 +3,13 @@
     <div class="tile" v-for="(edit, index) of sortedHistory" :key="edit.id">
       <div class="tile-icon">
         <figure class="avatar">
-          <img :src="getAvatarUrl(edit.editor.name, 32)" alt="avatar">
+          <img :src="getAvatarUrl(edit.editor.name)" alt="avatar">
         </figure>
       </div>
       <div class="tile-content">
         <p class="tile-title"> {{ edit.editor.name }} <i v-if="index === history.length - 1"> (Original)</i></p>
         <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
       </div>
-      <button class="btn btn-sm float-right" :class="{'loading': reverting}" v-if="$store.getters.isAdmin" @click="revert(edit)">
-        <i class="icon icon-refresh"></i>
-      </button>
     </div>
 
   </div>
@@ -31,8 +28,8 @@ p {
 
 <script>
 import { distanceInWordsToNow } from 'date-fns';
+import { EDIT_HISTORY_QUERY } from '../queries';
 import api from '@/api';
-import gql from 'graphql-tag';
 
 export default {
   props: {
@@ -51,24 +48,7 @@ export default {
   apollo: {
     subject () {
       return {
-        query: gql`
-          query GetSubject($id: ID!) {
-            subject(id: $id) {
-              id
-              history {
-                id
-                createdAt
-                personName
-                costumeDescription
-                editor {
-                  id
-                  name
-                }
-              }
-            }
-          }
-        `,
-
+        query: EDIT_HISTORY_QUERY,
         variables () {
           return {
             id: this.subjectId,
@@ -82,20 +62,6 @@ export default {
     distanceInWordsToNow,
     getAvatarUrl (name) {
       return api.avatarURL(name);
-    },
-
-    revert (history) {
-      this.reverting = true;
-      api
-        .updateSubject(
-          history.subjectId,
-          history.personName,
-          history.costumeDescription,
-        )
-        .then((subject) => {
-          this.reverting = false;
-          this.$store.commit('setSubject', subject);
-        });
     },
   },
 

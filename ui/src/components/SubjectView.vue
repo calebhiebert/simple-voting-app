@@ -35,16 +35,7 @@
 
       <!-- Name/Costume Edit Form -->
       <div class="column col-sm-12 col-mx-auto edit-form" v-else>
-        <div class="form-group" :class="{'has-error': errors.has('person_name')}">
-          <input class="form-input input-lg" data-vv-as="name" v-validate="{required: true, max: 255, min: 3}" name="person_name" placeholder="Name" v-model.trim="eName">
-          <p class="form-input-hint" v-if="errors.has('person_name')">{{ errors.first('person_name') }}</p>
-        </div>
-        <div class="form-group" :class="{'has-error': errors.has('costume')}">
-          <input class="form-input" name="costume" v-validate="{required: true, max: 255, min: 3}" placeholder="Costume" v-model.trim="eCostume">
-          <p class="form-input-hint" v-if="errors.has('costume')">{{ errors.first('costume') }}</p>
-        </div>
-        <button class="btn" @click="editing = false">Cancel</button>
-        <button class="btn btn-primary" @click="update" :class="{loading: saving}">Update</button>
+        <subject-edit-form :subject-id="subject.id" @close="editing = false"></subject-edit-form>
       </div>
 
       <!-- Nagivation/Vote buttons for mobile -->
@@ -110,20 +101,9 @@ h1 {
   width: 75px;
 }
 
-.edit-form {
-  margin-bottom: 1rem;
-}
-
 @media screen and (max-width: 600px) {
   .edit-history {
     margin-top: 1rem;
-  }
-
-  .edit-form {
-    padding-right: 1rem;
-    padding-left: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
   }
 }
 
@@ -138,54 +118,43 @@ h1 {
 import api from '@/api';
 import lang from '@/lang.json';
 import gql from 'graphql-tag';
+import {
+  GET_ME_QUERY,
+  VOTED_FOR_QUERY,
+  VOTE_MUTATION,
+  DELETE_SUBJECT_MUTATION,
+  GET_SUBJECT_BASIC_QUERY,
+} from '../queries';
 
+import SubjectEditForm from '@/components/SubjectEditForm.vue';
 import EditHistory from '@/components/EditHistory.vue';
 import Votes from '@/components/Votes.vue';
 import Modal from '@/components/Modal.vue';
 
 export default {
   components: {
+    SubjectEditForm,
     EditHistory,
     Votes,
     Modal,
   },
 
-  data () {
+  data() {
     return {
       lang,
       editing: false,
       saving: false,
       voting: false,
-      eName: '',
-      eCostume: '',
     };
   },
 
   apollo: {
-    user: gql`
-      query GetMe {
-        user {
-          id
-          name
-          admin
-          banned
-        }
-      }
-    `,
-
-    subject () {
+    user: GET_ME_QUERY,
+    subject() {
       return {
-        query: gql`
-          query GetSubject($id: ID!) {
-            subject(id: $id) {
-              id
-              personName
-              costumeDescription
-            }
-          }
-        `,
+        query: GET_SUBJECT_BASIC_QUERY,
 
-        variables () {
+        variables() {
           return {
             id: this.$route.params.id,
           };
@@ -196,35 +165,21 @@ export default {
             this.vote(queryResult.data.subject.id);
           }
         },
-
-        error (err) {
-          if (err.networkError) {
-            console.log('NETWORK ERROR', err.networkError);
-          } else if (err.gqlError) {
-            this.$router.replace({ name: 'home' });
-          }
-        },
       };
     },
-    votedFor: gql`
-      query VotedFor {
-        votedFor {
-          id
-        }
-      }
-    `,
+    votedFor: VOTED_FOR_QUERY,
   },
 
   computed: {
-    avatarUrl () {
+    avatarUrl() {
       return api.avatarURL(this.subject.personName);
     },
 
-    isMobile () {
+    isMobile() {
       return ['sm', 'xs'].indexOf(this.$mq) !== -1;
     },
 
-    isVotedFor () {
+    isVotedFor() {
       if (this.votedFor && this.subject) {
         return this.votedFor.id === this.subject.id;
       } else {
@@ -232,111 +187,44 @@ export default {
       }
     },
 
-    isBanned () {
+    isBanned() {
       return this.user ? this.user.banned : false;
     },
 
-    isAdmin () {
+    isAdmin() {
       return this.user ? this.user.admin : false;
     },
 
     editHistoryVisible: {
-      get () {
+      get() {
         return this.$store.state.settings.editHistoryVisible;
       },
-      set (value) {
+      set(value) {
         this.$store.commit('setting', { setting: 'editHistoryVisible', value });
       },
     },
   },
 
   methods: {
-    edit () {
-      this.eName = this.subject.personName;
-      this.eCostume = this.subject.costumeDescription;
+    edit() {
       this.editing = true;
     },
 
-    toggleEditHistory () {
+    toggleEditHistory() {
       this.editHistoryVisible = !this.editHistoryVisible;
     },
 
-    update () {
-      this.$validator.validate().then((valid) => {
-        if (valid) {
-          this.saving = true;
-          this.$apollo
-            .mutate({
-              mutation: gql`
-                mutation UpdateSubject($subject: SubjectMutation!) {
-                  updateSubject(input: $subject) {
-                    id
-                    personName
-                    costumeDescription
-                    history {
-                      id
-                      personName
-                      costumeDescription
-                      createdAt
-                      editor {
-                        id
-                      }
-                    }
-                  }
-                }
-              `,
-              variables: {
-                subject: {
-                  id: this.subject.id,
-                  personName: this.eName,
-                  costumeDescription: this.eCostume,
-                },
-              },
-            })
-            .then((result) => {
-              this.saving = false;
-              this.editing = false;
-            });
-        }
-      });
-    },
-
-    vote (subjId) {
+    vote(subjId) {
       this.voting = true;
       this.$apollo
         .mutate({
-          mutation: gql`
-            mutation DoVote($subjectId: ID!) {
-              vote(subjectId: $subjectId) {
-                id
-                updatedAt
-                voter {
-                  id
-                  name
-                }
-                subject {
-                  id
-                  votes {
-                    id
-                  }
-                }
-              }
-            }
-          `,
+          mutation: VOTE_MUTATION,
 
           variables: {
             subjectId: subjId || this.subject.id,
           },
 
           update: (store, { data: { vote } }) => {
-            const q = gql`
-              query VotedFor {
-                votedFor {
-                  id
-                }
-              }
-            `;
-
             const subjectsQuery = gql`
               query Subjects {
                 subjects {
@@ -355,37 +243,29 @@ export default {
             });
 
             try {
-              const data = store.readQuery({ query: q });
+              const data = store.readQuery({ query: VOTED_FOR_QUERY });
               data.votedFor.id = vote.subject.id;
-              store.writeQuery({ query: q, data });
+              store.writeQuery({ query: VOTED_FOR_QUERY, data });
             } catch (err) {
-              this.$apollo.query({ query: q, fetchPolicy: 'network-only' });
+              this.$apollo.query({ query: VOTED_FOR_QUERY, fetchPolicy: 'network-only' });
             }
           },
         })
         .then((vote) => {
           this.voting = false;
           if (this.$store.state.settings.showVotedNotification) {
-            this.$store.commit(
-              'toast',
-              'Your vote has been counted. Visit the settings menu in the top left corner to turn off auto voting',
-            );
+            this.$store.commit('toast', 'Your vote has been counted');
           }
         })
         .catch((err) => {
           this.voting = false;
-          console.error(err);
         });
     },
 
-    deleteSubject () {
+    deleteSubject() {
       this.$apollo
         .mutate({
-          mutation: gql`
-            mutation DeleteSubject($id: ID!) {
-              deleteSubject(id: $id)
-            }
-          `,
+          mutation: DELETE_SUBJECT_MUTATION,
 
           variables: {
             id: this.subject.id,

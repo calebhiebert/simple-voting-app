@@ -36,13 +36,12 @@
 </style>
 
 <script>
-// @ is an alias to /src
+import lang from '@/lang.json';
+import { VOTE_CAST_SUBSCRIPTION, GET_ME_QUERY, VOTED_FOR_QUERY, GET_ALL_SUBJECTS } from '../queries';
+
 import MainPageVoteView from '@/components/MainPageVoteView.vue';
 import Modal from '@/components/Modal.vue';
 import Settings from '@/components/Settings.vue';
-import ApolloTest from '@/components/ApolloTest.vue';
-import lang from '@/lang.json';
-import gql from 'graphql-tag';
 
 export default {
   name: 'home',
@@ -50,61 +49,18 @@ export default {
     MainPageVoteView,
     Modal,
     Settings,
-    ApolloTest,
   },
 
   apollo: {
     subjects: {
-      query: gql`
-        query GetAllSubjects {
-          subjects {
-            id
-            personName
-            costumeDescription
-            voteCount
-            votes {
-              id
-              voter {
-                id
-                name
-              }
-            }
-          }
-        }
-      `,
+      query: GET_ALL_SUBJECTS,
       subscribeToMore: {
-        document: gql`
-          subscription VoteUpdates {
-            voteCast {
-              id
-              voteCount
-            }
-          }
-        `,
-
-        updateQuery: (previousResult, { subscriptionData }) => {
-        },
+        document: VOTE_CAST_SUBSCRIPTION,
       },
     },
 
-    votedFor: gql`
-      query VotedFor {
-        votedFor {
-          id
-        }
-      }
-    `,
-
-    user: gql`
-      query GetMe {
-        user {
-          id
-          name
-          banned
-          admin
-        }
-      }
-    `,
+    votedFor: VOTED_FOR_QUERY,
+    user: GET_ME_QUERY,
   },
 
   data () {

@@ -63,10 +63,10 @@
 </style>
 <script>
 import lang from '@/lang.json';
+import { GET_ME_QUERY } from '@/queries';
 
 import Modal from './components/Modal';
 import Settings from './components/Settings';
-import gql from 'graphql-tag';
 
 export default {
   components: {
@@ -85,16 +85,7 @@ export default {
   },
 
   apollo: {
-    user: gql`
-      query GetMe {
-        user {
-          id
-          name
-          banned
-          admin
-        }
-      }
-    `,
+    user: GET_ME_QUERY,
   },
 
   computed: {

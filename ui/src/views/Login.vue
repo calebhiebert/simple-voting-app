@@ -46,10 +46,6 @@ export default {
           localStorage.setItem('access-token', result.accessToken);
           axios.defaults.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
           this.$router.replace({ name: 'home' });
-
-          // api.getMe().then((me) => {
-          //   this.$store.commit('setMe', me);
-          // });
         }
       });
     }

@@ -38,6 +38,7 @@ button {
 
 <script>
 import gql from 'graphql-tag';
+import { CREATE_SUBJECT_MUTATION } from '../queries';
 
 const SUBJECTS_QUERY = gql`
   query GetSubjects {
@@ -68,24 +69,7 @@ export default {
           this.saving = true;
           this.$apollo
             .mutate({
-              mutation: gql`
-                mutation CreateSubject($subject: SubjectCreation!) {
-                  createSubject(input: $subject) {
-                    id
-                    personName
-                    costumeDescription
-                    voteCount
-                    history {
-                      id
-                      createdAt
-                      editor {
-                        id
-                        name
-                      }
-                    }
-                  }
-                }
-              `,
+              mutation: CREATE_SUBJECT_MUTATION,
               variables: {
                 subject: {
                   personName: this.personName,
@@ -94,9 +78,7 @@ export default {
               },
               update: (store, { data: { createSubject } }) => {
                 const data = store.readQuery({ query: SUBJECTS_QUERY });
-
                 data.subjects.push(createSubject);
-
                 store.writeQuery({ query: SUBJECTS_QUERY, data });
               },
             })
