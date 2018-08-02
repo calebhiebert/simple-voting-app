@@ -1,11 +1,14 @@
 {
   "title": "Costume Voting",
-  "subtitle": "Please select the person you would like to vote for",
+  "subtitle":
+    "Please select the person you would like to vote for. Once you click on them, a vote will be automatically submitted. If you don't want this, visit the settings menu in the top left corner.",
   "addNotice": "Don't see the person/costume you're looking for?",
   "addText": "Add them",
   "editNotice": "Something not right here? Please",
   "editText": "Fix it",
   "banNotice": "You have been banned from voting, editing, and adding new guests",
+  "greeting":
+    "Hey! This is the voting site for the 2018 halloween party. It's pretty simple, just log in with google or facebook, and vote for your favorite costume! If you don't see your favorite costume on the list, you can add it. Don't worry if you don't know sombodies name, somebody else can fill it in.",
   "names": [
     "Trudy Sampson",
     "Bobbie Herren",

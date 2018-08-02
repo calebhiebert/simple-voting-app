@@ -24,11 +24,11 @@
       <!-- Name/Costume View -->
       <div class="column col-5 col-md-7 col-sm-12" :class="{'col-mx-auto': isMobile}" v-if="!editing">
         <div class="text-center show-sm">
-          <h1>{{ subject.personName }}</h1>
+          <h1 v-if="!unknownName">{{ subject.personName }}</h1>
           <h4 class="text-gray">{{ subject.costumeDescription }}</h4>
         </div>
         <div class="hide-sm">
-          <h1>{{ subject.personName }}</h1>
+          <h1 v-if="!unknownName">{{ subject.personName }}</h1>
           <h4 class="text-gray">{{ subject.costumeDescription }}</h4>
         </div>
       </div>
@@ -47,6 +47,13 @@
         <button class="btn btn-success" v-else-if="!isBanned">
           <i class="icon icon-check"></i> Voted
         </button>
+      </div>
+    </div>
+
+    <div class="column col-11 col-mx-auto my-2" v-if="unknownName">
+      <div class="toast toast-warning">
+        <strong>Attention!</strong><br/>
+        It looks like this costume is missing a name! If you know the name of the person in this costume, please add it by clicking <strong><a @click="editing = true">here</a></strong>
       </div>
     </div>
 
@@ -195,7 +202,7 @@ export default {
           if (queryResult.data) {
             this.status.loaded = true;
           }
-          if (this.$route.query.doVote && queryResult.data && !this.isBanned) {
+          if (this.$route.query.doVote && queryResult.data && !this.isBanned && !this.unknownName) {
             this.vote(queryResult.data.subject.id);
           }
         },
@@ -216,6 +223,14 @@ export default {
     isVotedFor () {
       if (this.votedFor && this.subject) {
         return this.votedFor.id === this.subject.id;
+      } else {
+        return false;
+      }
+    },
+
+    unknownName () {
+      if (this.subject) {
+        return this.subject.personName === '!unknown!';
       } else {
         return false;
       }

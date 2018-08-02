@@ -35,6 +35,7 @@ const apolloProvider = createProvider(
     if (error.networkError) {
       switch (error.networkError.statusCode) {
         case 403:
+          localStorage.removeItem('access-token');
           router.push({ name: 'login' });
           break;
         default:

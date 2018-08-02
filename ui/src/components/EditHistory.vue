@@ -9,7 +9,7 @@
         </div>
         <div class="tile-content">
           <p class="tile-title"> {{ edit.editor.name }} <i v-if="index === history.length - 1"> (Original)</i></p>
-          <p class="tile-subtitle text-gray">{{ edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
+          <p class="tile-subtitle text-gray" :class="{'text-error': edit.personName === '!unknown!'}">{{ edit.personName === '!unknown!' ? 'Name Unknown' : edit.personName }} - {{ edit.costumeDescription }} - <i>{{ distanceInWordsToNow(edit.createdAt) }} ago</i></p>
         </div>
       </div>
     </transition-group>

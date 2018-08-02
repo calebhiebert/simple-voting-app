@@ -5,6 +5,7 @@ import Subject from './views/Subject.vue';
 import CreateSubject from './views/CreateSubject.vue';
 import Login from './views/Login.vue';
 import Users from './views/Users.vue';
+import Privacy from './views/Privacy.vue';
 import axios from 'axios';
 
 Vue.use(Router);
@@ -49,6 +50,11 @@ export default new Router({
       name: 'users',
       component: Users,
       beforeEnter: authGuard,
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: Privacy,
     },
   ],
 });

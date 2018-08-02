@@ -4,10 +4,16 @@
       <div class="column col-10 col-mx-auto">
         <h3>Add Person</h3>
         <form @submit.prevent="submit">
-          <div class="form-group" :class="{'has-error': errors.has('person_name')}">
+          <div class="form-group" :class="{'has-error': errors.has('person_name')}" v-if="!unknown">
             <label class="form-label">Person Name</label>
             <input class="form-input" data-vv-as="name" v-validate="{required: true, max: 255, min: 3}" name="person_name" type="text" placeholder="ex. John Smith" v-model="personName">
             <p class="form-input-hint" v-if="errors.has('person_name')">{{ errors.first('person_name') }}</p>
+          </div>
+          <div class="form-group">
+            <label class="form-checkbox">
+              <input type="checkbox" v-model="unknown">
+              <i class="form-icon"></i> I don't know the name
+            </label>
           </div>
           <div class="form-group" :class="{'has-error': errors.has('costume')}">
             <label class="form-label">Costume</label>
@@ -58,6 +64,21 @@ export default {
       costumeDescription: '',
       saving: false,
     };
+  },
+
+  computed: {
+    unknown: {
+      get () {
+        return this.personName === '!unknown!';
+      },
+      set (value) {
+        if (value === true) {
+          this.personName = '!unknown!';
+        } else {
+          this.personName = '';
+        }
+      },
+    },
   },
 
   methods: {

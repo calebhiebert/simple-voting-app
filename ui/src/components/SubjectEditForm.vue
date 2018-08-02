@@ -35,7 +35,9 @@ export default {
 
       result ({ data }) {
         if (data !== undefined) {
-          this.personName = data.subject.personName;
+          if (data.subject.personName !== '!unknown!') {
+            this.personName = data.subject.personName;
+          }
           this.costumeDescription = data.subject.costumeDescription;
         }
       },

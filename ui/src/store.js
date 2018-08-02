@@ -13,6 +13,7 @@ export default new Vuex.Store({
       autoLogoutOnVote: false,
       editHistoryVisible: false,
       showVotedNotification: true,
+      hideWelcomeMessage: false,
     },
   },
   mutations: {

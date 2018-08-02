@@ -12,7 +12,7 @@
         </div>
       </div>
     </transition>
-    <button class="btn btn-link mt-2 ml-2 absolute" @click="showSettings">
+    <button class="btn btn-link mt-2 ml-2 absolute top" @click="showSettings">
       <i class="icon icon-more-vert"></i>
     </button>
     <div class="toast toast-warning text-center top" v-if="isBanned">
@@ -21,11 +21,16 @@
       {{ lang.banNotice }}
     </div>
     <transition name="shrink" mode="out-in">
-      <router-view style="position: absolute; z-index: -1;"/>
+      <router-view style="position: absolute; z-index: 1; height: 100%;"/>
     </transition>
   </div>
 </template>
 <style>
+html,
+body {
+  height: 100%;
+}
+
 .top {
   z-index: 100;
 }

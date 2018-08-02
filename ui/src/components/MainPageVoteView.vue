@@ -3,12 +3,12 @@
     <div class="column">
       <div class="tile">
         <div class="tile-icon">
-          <figure class="avatar avatar-lg" :class="{'badge': votedFor}">
+          <figure class="avatar avatar-lg" :data-badge="unknownName ? '!' : ''" :class="{'badge': votedFor || unknownName}">
             <img :src="avatarUrl">
           </figure>
         </div>
         <div class="tile-content">
-          <div class="tile-title">{{ name }}</div>
+          <div class="tile-title" v-if="!unknownName">{{ name }}</div>
           <div class="costume-description text-gray">{{ costume }}</div>
           <div class="bar bar-sm">
             <div class="bar-item" role="progressbar" :style="{width: barWidth}" :aria-valuenow="votePercent * 100" aria-valuemin="0" aria-valuemax="100"></div>
@@ -78,6 +78,9 @@ export default {
     },
     avatarUrl () {
       return avatarURL(this.name);
+    },
+    unknownName () {
+      return this.name === '!unknown!';
     },
   },
 };

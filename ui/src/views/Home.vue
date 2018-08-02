@@ -3,7 +3,7 @@
     <div class="columns mt-2">
       <div class="column col-8 col-sm-10 col-mx-auto text-center">
         <h1>{{ lang.title }}</h1>
-        <p>{{ lang.subtitle }}</p>
+        <p v-if="!$store.state.settings.hideWelcomeMessage">{{ lang.subtitle }}</p>
       </div>
     </div>
     <div class="columns">
