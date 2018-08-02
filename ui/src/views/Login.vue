@@ -114,7 +114,7 @@ export default {
         responseType: 'token',
         scope: 'openid profile',
         clientID: 'l15qBjZMwq4NVeKCwFruwJJpaWI4Dphy',
-        redirectUri: 'http://localhost:8080/login',
+        redirectUri: `${location.protocol}//${location.host}/login`,
       });
     },
 
