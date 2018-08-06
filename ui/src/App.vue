@@ -3,8 +3,8 @@
     <modal ref="settings" title="Settings">
       <settings></settings>
     </modal>
-    <transition name="fade-virt-rev">
-      <div class="p-2 absolute top" :class="{'wide': isMobile, 'right': !isMobile}" @click="$store.commit('toast', '')" v-if="$store.state.toast !== ''">
+    <transition name="fade-virt-rev" style="z-index: 500;">
+      <div class="p-2 absolute" style="z-index: 500;" :class="{'wide': isMobile, 'right': !isMobile}" @click="$store.commit('toast', '')" v-if="$store.state.toast !== ''">
         <div class="toast toast-success">
           <button class="btn btn-clear float-right" @click="$store.commit('toast', '')"></button>
           <i class="icon icon-check"></i>
@@ -12,7 +12,7 @@
         </div>
       </div>
     </transition>
-    <button class="btn btn-link mt-2 ml-2 absolute top" @click="showSettings">
+    <button class="btn btn-link mt-2 ml-2 absolute" style="z-index: 400;" @click="showSettings">
       <i class="icon icon-more-vert"></i>
     </button>
     <div class="toast toast-warning text-center top" v-if="isBanned">

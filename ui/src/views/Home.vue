@@ -74,18 +74,6 @@ export default {
     return { lang, searchQuery: '' };
   },
 
-  destroyed () {
-    localStorage.setItem('home-scroll', document.documentElement.scrollTop);
-  },
-
-  mounted () {
-    const scrollPos = localStorage.getItem('home-scroll');
-
-    if (scrollPos !== null) {
-      document.documentElement.scrollTop = parseInt(scrollPos);
-    }
-  },
-
   computed: {
     sortedSubjects () {
       if (this.subjects) {
